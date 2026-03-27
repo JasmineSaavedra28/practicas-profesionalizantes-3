@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Stock reciclaje</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>Stock de materiales</h1>
+
+<table id="tabla">
+<thead>
+<tr>
+<th>ID</th>
+<th>Material</th>
+<th>Cantidad</th>
+<th>Unidad</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<h2>Agregar Material</h2>
+<form id="addForm">
+<input type="text" id="nombre" placeholder="Nombre" required>
+<input type="number" id="cantidad" placeholder="Cantidad" step="0.01" required>
+<input type="text" id="unidad" placeholder="Unidad" required>
+<button type="submit">Agregar</button>
+</form>
+
+<h2>Comprar Material</h2>
+<form id="buyForm">
+<input type="number" id="buyId" placeholder="ID del material" required>
+<input type="number" id="buyCantidad" placeholder="Cantidad a comprar" step="0.01" required>
+<button type="submit">Comprar</button>
+</form>
+
+<h2>Vender Material</h2>
+<form id="sellForm">
+<input type="number" id="sellId" placeholder="ID del material" required>
+<input type="number" id="sellCantidad" placeholder="Cantidad a vender" step="0.01" required>
+<button type="submit">Vender</button>
+</form>
+
+<script src="app.js"></script>
+
+</body>
+</html>
