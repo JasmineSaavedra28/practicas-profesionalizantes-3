@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Autenticación y Gestión de Permisos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .section { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 20px; }
+        h2 { color: #555; font-size: 1.2em; margin: 15px 0 10px 0; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin: 5px 0; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 3px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        .success { color: #28a745; padding: 10px; background: #d4edda; border-radius: 3px; margin: 10px 0; }
+        .error { color: #dc3545; padding: 10px; background: #f8d7da; border-radius: 3px; margin: 10px 0; }
+        .result { background: #f9f9f9; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 3px; max-height: 200px; overflow-y: auto; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Sistema de Autenticación y Gestión de Permisos</h1>
+
+        <div class="grid">
+            <!-- USUARIOS -->
+            <div class="section">
+                <h2>👥 Gestión de Usuarios</h2>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Crear Usuario</h3>
+                    <input type="text" id="usuario_username" placeholder="Username" />
+                    <input type="password" id="usuario_password" placeholder="Password" />
+                    <input type="email" id="usuario_email" placeholder="Email" />
+                    <input type="number" id="usuario_role_id" placeholder="Role ID (opcional)" />
+                    <button onclick="crearUsuario()">Crear</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Leer Usuario</h3>
+                    <input type="number" id="usuario_id" placeholder="ID del usuario" />
+                    <button onclick="leerUsuario()">Leer</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Acciones</h3>
+                    <button onclick="listarUsuarios()">Listar Todos</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Actualizar Usuario</h3>
+                    <input type="number" id="usuario_id_upd" placeholder="ID del usuario" />
+                    <input type="text" id="usuario_username_upd" placeholder="Username" />
+                    <input type="password" id="usuario_password_upd" placeholder="Password" />
+                    <input type="email" id="usuario_email_upd" placeholder="Email" />
+                    <input type="number" id="usuario_role_id_upd" placeholder="Role ID" />
+                    <button onclick="actualizarUsuario()">Actualizar</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Eliminar Usuario</h3>
+                    <input type="number" id="usuario_id_del" placeholder="ID del usuario" />
+                    <button class="danger" onclick="eliminarUsuario()">Eliminar</button>
+                </div>
+
+                <div id="resultado_usuarios" class="result" style="display:none;"></div>
+            </div>
+
+            <!-- ROLES -->
+            <div class="section">
+                <h2>🎭 Gestión de Roles</h2>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Crear Rol</h3>
+                    <input type="text" id="rol_name" placeholder="Nombre del rol" />
+                    <textarea id="rol_description" placeholder="Descripción"></textarea>
+                    <button onclick="crearRol()">Crear</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Acciones</h3>
+                    <button onclick="listarRoles()">Listar Todos</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Actualizar Rol</h3>
+                    <input type="number" id="rol_id_upd" placeholder="ID del rol" />
+                    <input type="text" id="rol_name_upd" placeholder="Nombre del rol" />
+                    <textarea id="rol_description_upd" placeholder="Descripción"></textarea>
+                    <button onclick="actualizarRol()">Actualizar</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Eliminar Rol</h3>
+                    <input type="number" id="rol_id_del" placeholder="ID del rol" />
+                    <button class="danger" onclick="eliminarRol()">Eliminar</button>
+                </div>
+
+                <div id="resultado_roles" class="result" style="display:none;"></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- PERMISOS -->
+            <div class="section">
+                <h2>🔑 Gestión de Permisos</h2>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Crear Permiso</h3>
+                    <input type="text" id="permiso_name" placeholder="Nombre del permiso" />
+                    <textarea id="permiso_description" placeholder="Descripción"></textarea>
+                    <button onclick="crearPermiso()">Crear</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Acciones</h3>
+                    <button onclick="listarPermisos()">Listar Todos</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Actualizar Permiso</h3>
+                    <input type="number" id="permiso_id_upd" placeholder="ID del permiso" />
+                    <input type="text" id="permiso_name_upd" placeholder="Nombre del permiso" />
+                    <textarea id="permiso_description_upd" placeholder="Descripción"></textarea>
+                    <button onclick="actualizarPermiso()">Actualizar</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Eliminar Permiso</h3>
+                    <input type="number" id="permiso_id_del" placeholder="ID del permiso" />
+                    <button class="danger" onclick="eliminarPermiso()">Eliminar</button>
+                </div>
+
+                <div id="resultado_permisos" class="result" style="display:none;"></div>
+            </div>
+
+            <!-- ASIGNACIONES -->
+            <div class="section">
+                <h2>🔗 Asignación de Permisos a Roles</h2>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Asignar Permiso a Rol</h3>
+                    <input type="number" id="asignar_role_id" placeholder="ID del rol" />
+                    <input type="number" id="asignar_permiso_id" placeholder="ID del permiso" />
+                    <button onclick="asignarPermisoRol()">Asignar</button>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="font-size: 1em; margin: 10px 0;">Ver Permisos de un Rol</h3>
+                    <input type="number" id="ver_permisos_role_id" placeholder="ID del rol" />
+                    <button onclick="verPermisosRol()">Ver Permisos</button>
+                </div>
+
+                <div id="resultado_asignaciones" class="result" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:3001';
+
+        async function hacerPeticion(endpoint, metodo = 'GET', datos = null) {
+            try {
+                const opciones = {
+                    method: metodo,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                };
+                if (datos) {
+                    opciones.body = new URLSearchParams(datos).toString();
+                }
+                const respuesta = await fetch(API + endpoint, opciones);
+                const json = await respuesta.json();
+                return json;
+            } catch (err) {
+                return { error: err.message };
+            }
+        }
+
+        function mostrarResultado(elementId, resultado) {
+            const elem = document.getElementById(elementId);
+            elem.textContent = JSON.stringify(resultado, null, 2);
+            elem.style.display = 'block';
+        }
+
+        // USUARIOS
+        async function crearUsuario() {
+            const datos = {
+                username: document.getElementById('usuario_username').value,
+                password: document.getElementById('usuario_password').value,
+                email: document.getElementById('usuario_email').value,
+                role_id: document.getElementById('usuario_role_id').value || null
+            };
+            const resultado = await hacerPeticion('/usuarios/crear', 'POST', datos);
+            mostrarResultado('resultado_usuarios', resultado);
+        }
+
+        async function leerUsuario() {
+            const id = document.getElementById('usuario_id').value;
+            const resultado = await hacerPeticion(`/usuarios/leer?id=${id}`);
+            mostrarResultado('resultado_usuarios', resultado);
+        }
+
+        async function listarUsuarios() {
+            const resultado = await hacerPeticion('/usuarios/listar');
+            mostrarResultado('resultado_usuarios', resultado);
+        }
+
+        async function actualizarUsuario() {
+            const datos = {
+                id: document.getElementById('usuario_id_upd').value,
+                username: document.getElementById('usuario_username_upd').value,
+                password: document.getElementById('usuario_password_upd').value,
+                email: document.getElementById('usuario_email_upd').value,
+                role_id: document.getElementById('usuario_role_id_upd').value
+            };
+            const resultado = await hacerPeticion('/usuarios/actualizar', 'PUT', datos);
+            mostrarResultado('resultado_usuarios', resultado);
+        }
+
+        async function eliminarUsuario() {
+            const id = document.getElementById('usuario_id_del').value;
+            const resultado = await hacerPeticion(`/usuarios/eliminar?id=${id}`, 'DELETE');
+            mostrarResultado('resultado_usuarios', resultado);
+        }
+
+        // ROLES
+        async function crearRol() {
+            const datos = {
+                name: document.getElementById('rol_name').value,
+                description: document.getElementById('rol_description').value || null
+            };
+            const resultado = await hacerPeticion('/roles/crear', 'POST', datos);
+            mostrarResultado('resultado_roles', resultado);
+        }
+
+        async function listarRoles() {
+            const resultado = await hacerPeticion('/roles/listar');
+            mostrarResultado('resultado_roles', resultado);
+        }
+
+        async function actualizarRol() {
+            const datos = {
+                id: document.getElementById('rol_id_upd').value,
+                name: document.getElementById('rol_name_upd').value,
+                description: document.getElementById('rol_description_upd').value
+            };
+            const resultado = await hacerPeticion('/roles/actualizar', 'PUT', datos);
+            mostrarResultado('resultado_roles', resultado);
+        }
+
+        async function eliminarRol() {
+            const id = document.getElementById('rol_id_del').value;
+            const resultado = await hacerPeticion(`/roles/eliminar?id=${id}`, 'DELETE');
+            mostrarResultado('resultado_roles', resultado);
+        }
+
+        // PERMISOS
+        async function crearPermiso() {
+            const datos = {
+                name: document.getElementById('permiso_name').value,
+                description: document.getElementById('permiso_description').value || null
+            };
+            const resultado = await hacerPeticion('/permisos/crear', 'POST', datos);
+            mostrarResultado('resultado_permisos', resultado);
+        }
+
+        async function listarPermisos() {
+            const resultado = await hacerPeticion('/permisos/listar');
+            mostrarResultado('resultado_permisos', resultado);
+        }
+
+        async function actualizarPermiso() {
+            const datos = {
+                id: document.getElementById('permiso_id_upd').value,
+                name: document.getElementById('permiso_name_upd').value,
+                description: document.getElementById('permiso_description_upd').value
+            };
+            const resultado = await hacerPeticion('/permisos/actualizar', 'PUT', datos);
+            mostrarResultado('resultado_permisos', resultado);
+        }
+
+        async function eliminarPermiso() {
+            const id = document.getElementById('permiso_id_del').value;
+            const resultado = await hacerPeticion(`/permisos/eliminar?id=${id}`, 'DELETE');
+            mostrarResultado('resultado_permisos', resultado);
+        }
+
+        // ASIGNACIONES
+        async function asignarPermisoRol() {
+            const datos = {
+                role_id: document.getElementById('asignar_role_id').value,
+                permission_id: document.getElementById('asignar_permiso_id').value
+            };
+            const resultado = await hacerPeticion('/roles/asignar-permiso', 'POST', datos);
+            mostrarResultado('resultado_asignaciones', resultado);
+        }
+
+        async function verPermisosRol() {
+            const role_id = document.getElementById('ver_permisos_role_id').value;
+            const resultado = await hacerPeticion(`/roles/permisos?role_id=${role_id}`);
+            mostrarResultado('resultado_asignaciones', resultado);
+        }
+    </script>
+</body>
+</html>
