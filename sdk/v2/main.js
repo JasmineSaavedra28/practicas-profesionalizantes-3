@@ -33,6 +33,6 @@ const dbFunctions = {
     asignar_permiso_a_rol, obtener_permisos_rol
 };
 
-const router = create_router(handlers, db, dbFunctions);
+const router = create_router(handlers, db, dbFunctions, config);
 
 start_server(config, router);

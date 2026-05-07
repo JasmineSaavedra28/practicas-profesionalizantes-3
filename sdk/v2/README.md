@@ -88,6 +88,12 @@ Todas las operaciones siguen una convención de nombres consistente: **[verbo]_[
 
 ## Instalación y Uso
 
+Para ejecutar este proyecto, abre una terminal en la carpeta `v2`:
+
+```bash
+cd c:\Users\Jazmín\Downloads\practicas-profesionalizantes-3\sdk\v2
+```
+
 ### 1. Instalar dependencias
 ```bash
 npm install
@@ -108,10 +114,20 @@ Este script crea automáticamente:
 node main.js
 ```
 
-El servidor se ejecutará en `http://127.0.0.1:3001`
+> Si usas otra terminal, asegúrate de estar siempre en el directorio `v2` antes de ejecutar los comandos.
+
+El servidor se ejecutará en `http://127.0.0.1:3001`.
 
 ### 4. Acceder a la interfaz web
 Abrir `http://127.0.0.1:3001` en el navegador para acceder al panel de gestión completo.
+
+### 5. Actualizar datos de prueba
+Si necesitas regenerar los datos desde cero, elimina `db.sqlite3` y vuelve a correr `node seed_data.js`:
+
+```bash
+Remove-Item db.sqlite3
+node seed_data.js
+```
 
 ## Datos de Prueba Generados
 

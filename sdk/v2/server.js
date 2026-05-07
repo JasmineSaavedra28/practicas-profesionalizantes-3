@@ -1,11 +1,11 @@
 import { createServer } from 'node:http';
 import { URL } from 'node:url';
 
-function create_router(handlers, db, dbFunctions)
+function create_router(handlers, db, dbFunctions, config)
 {
     let router = new Map();
 
-    router.set('/', (req, res) => handlers.default_handler(req, res));
+    router.set('/', (req, res) => handlers.default_handler(req, res, config));
 
     // Usuario CRUD
     router.set('/usuarios/crear', (req, res) => handlers.crear_usuario_handler(req, res, db, dbFunctions.crear_usuario));
