@@ -101,7 +101,7 @@ npm install
 
 ### 2. Generar datos de prueba
 ```bash
-node seed_data.js
+npm run seed
 ```
 
 Este script crea automáticamente:
@@ -111,7 +111,7 @@ Este script crea automáticamente:
 
 ### 3. Iniciar el servidor
 ```bash
-node main.js
+npm start
 ```
 
 > Si usas otra terminal, asegúrate de estar siempre en el directorio `v2` antes de ejecutar los comandos.
@@ -122,11 +122,11 @@ El servidor se ejecutará en `http://127.0.0.1:3001`.
 Abrir `http://127.0.0.1:3001` en el navegador para acceder al panel de gestión completo.
 
 ### 5. Actualizar datos de prueba
-Si necesitas regenerar los datos desde cero, elimina `db.sqlite3` y vuelve a correr `node seed_data.js`:
+Si necesitas regenerar los datos desde cero, elimina `db.sqlite3` y vuelve a correr:
 
 ```bash
 Remove-Item db.sqlite3
-node seed_data.js
+npm run seed
 ```
 
 ## Datos de Prueba Generados
@@ -209,21 +209,25 @@ v2/
 ├── main.js              # Punto de entrada del servidor
 ├── config.js            # Manejo de configuración
 ├── config.json          # Archivo de configuración
-├── database.js          # Funciones CRUD y conexión a BD
-├── handlers.js          # Handlers HTTP para todos los endpoints
-├── server.js            # Router y dispatcher de requests
-├── default.html         # Interfaz web interactiva
-├── seed_data.js         # Script para generar datos de prueba
 ├── package.json         # Dependencias del proyecto
+├── package-lock.json    # Lockfile de npm
+├── seed.mjs             # Script para generar datos de prueba
 ├── .gitignore           # Archivos a ignorar en git
-└── db.sqlite3           # Base de datos (se genera automáticamente)
+├── db.sqlite3           # Base de datos (se genera automáticamente)
+├── public/
+│   └── default.html     # Interfaz web interactiva
+└── src/
+    ├── db.mjs           # Funciones CRUD y conexión a BD
+    ├── usecase.mjs      # Lógica de negocio y validaciones
+    ├── handlers.mjs     # Handlers HTTP para endpoints
+    └── server.mjs       # Router y dispatcher de requests
 ```
 
 ## Notas Importantes
 
-- El archivo `db.sqlite3` se genera automáticamente al ejecutar `seed_data.js`
+- El archivo `db.sqlite3` se genera automáticamente al ejecutar `seed.mjs`
 - No se incluye `node_modules/` en el repositorio (ver `.gitignore`)
-- La interfaz HTML está en un único archivo (`default.html`) sin modularización
+- La interfaz HTML está en `public/default.html` y no está modularizada
 - No se utilizan frameworks frontend, solo JavaScript vanilla y CSS puro
 - Todos los endpoints devuelven JSON
 - Las contraseñas en los datos de prueba son plaintext (para desarrollo únicamente)
