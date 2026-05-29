@@ -1,6 +1,7 @@
 import {
     crear_usuario as crear_usuario_db,
     leer_usuario as leer_usuario_db,
+    leer_usuario_por_username as leer_usuario_por_username_db,
     listar_usuarios as listar_usuarios_db,
     actualizar_usuario as actualizar_usuario_db,
     eliminar_usuario as eliminar_usuario_db,
@@ -13,9 +14,8 @@ import {
     actualizar_permiso as actualizar_permiso_db,
     eliminar_permiso as eliminar_permiso_db,
     asignar_permiso_a_rol as asignar_permiso_a_rol_db,
-    obtener_permisos_rol as obtener_permisos_rol_db,
-    leer_usuario_por_username as leer_usuario_por_username_db
-} from './db.mjs';
+    obtener_permisos_rol as obtener_permisos_rol_db
+} from './model.mjs';
 
 function crear_usuario(db, username, password, email, role_id = null)
 {

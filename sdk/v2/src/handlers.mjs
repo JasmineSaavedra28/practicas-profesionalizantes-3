@@ -20,11 +20,17 @@ import {
     obtener_permisos_rol
 } from './usecase.mjs';
 
-function default_handler(request, response, config)
+function getRequestUrl(request)
+{
+    const host = request.headers.host || '127.0.0.1';
+    return new URL(request.url, `http://${host}`);
+}
+
+function default_handler(request, response, context)
 {
     try
     {
-        const html = readFileSync(config.server.default_path, 'utf-8');
+        const html = readFileSync(context.config.server.default_path, 'utf-8');
         response.writeHead(200, { 'Content-Type': 'text/html' });
         response.end(html);
     }
@@ -47,7 +53,7 @@ function parseRequestBody(request)
     });
 }
 
-async function register_handler(request, response, db)
+async function register_handler(request, response, context)
 {
     if (request.method !== 'POST')
     {
@@ -59,7 +65,7 @@ async function register_handler(request, response, db)
     try
     {
         const input = await parseRequestBody(request);
-        const output = crear_usuario(db, input.username, input.password, input.email, input.role_id || null);
+        const output = crear_usuario(context.db, input.username, input.password, input.email, input.role_id || null);
         response.writeHead(201, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -70,7 +76,7 @@ async function register_handler(request, response, db)
     }
 }
 
-async function login_handler(request, response, db)
+async function login_handler(request, response, context)
 {
     if (request.method !== 'POST')
     {
@@ -82,7 +88,7 @@ async function login_handler(request, response, db)
     try
     {
         const input = await parseRequestBody(request);
-        const output = iniciar_sesion(db, input.username, input.password);
+        const output = iniciar_sesion(context.db, input.username, input.password);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -93,7 +99,7 @@ async function login_handler(request, response, db)
     }
 }
 
-async function crear_usuario_handler(request, response, db)
+async function crear_usuario_handler(request, response, context)
 {
     if (request.method !== 'POST')
     {
@@ -105,7 +111,7 @@ async function crear_usuario_handler(request, response, db)
     try
     {
         const input = await parseRequestBody(request);
-        const output = crear_usuario(db, input.username, input.password, input.email, input.role_id || null);
+        const output = crear_usuario(context.db, input.username, input.password, input.email, input.role_id || null);
         response.writeHead(201, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -116,9 +122,9 @@ async function crear_usuario_handler(request, response, db)
     }
 }
 
-function leer_usuario_handler(request, response, db)
+function leer_usuario_handler(request, response, context)
 {
-    const url = new URL(request.url, 'http://localhost');
+    const url = getRequestUrl(request);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -130,7 +136,7 @@ function leer_usuario_handler(request, response, db)
 
     try
     {
-        const output = leer_usuario(db, id);
+        const output = leer_usuario(context.db, id);
         if (!output)
         {
             response.writeHead(404, { 'Content-Type': 'application/json' });
@@ -147,11 +153,11 @@ function leer_usuario_handler(request, response, db)
     }
 }
 
-function listar_usuarios_handler(request, response, db)
+function listar_usuarios_handler(request, response, context)
 {
     try
     {
-        const output = listar_usuarios(db);
+        const output = listar_usuarios(context.db);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -162,9 +168,9 @@ function listar_usuarios_handler(request, response, db)
     }
 }
 
-async function actualizar_usuario_handler(request, response, db)
+async function actualizar_usuario_handler(request, response, context)
 {
-    if (request.method !== 'PUT')
+    if (request.method !== 'POST')
     {
         response.writeHead(405, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Method not allowed' }));
@@ -180,7 +186,7 @@ async function actualizar_usuario_handler(request, response, db)
             response.end(JSON.stringify({ error: 'id requerido' }));
             return;
         }
-        const output = actualizar_usuario(db, input.id, input.username, input.password, input.email, input.role_id);
+        const output = actualizar_usuario(context.db, input.id, input.username, input.password, input.email, input.role_id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -191,16 +197,16 @@ async function actualizar_usuario_handler(request, response, db)
     }
 }
 
-function eliminar_usuario_handler(request, response, db)
+async function eliminar_usuario_handler(request, response, context)
 {
-    if (request.method !== 'DELETE')
+    if (request.method !== 'POST')
     {
         response.writeHead(405, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Method not allowed' }));
         return;
     }
 
-    const url = new URL(request.url, 'http://localhost');
+    const url = getRequestUrl(request);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -212,7 +218,7 @@ function eliminar_usuario_handler(request, response, db)
 
     try
     {
-        const output = eliminar_usuario(db, id);
+        const output = eliminar_usuario(context.db, id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ message: 'Usuario eliminado', data: output }));
     }
@@ -223,7 +229,7 @@ function eliminar_usuario_handler(request, response, db)
     }
 }
 
-async function crear_rol_handler(request, response, db)
+async function crear_rol_handler(request, response, context)
 {
     if (request.method !== 'POST')
     {
@@ -235,7 +241,7 @@ async function crear_rol_handler(request, response, db)
     try
     {
         const input = await parseRequestBody(request);
-        const output = crear_rol(db, input.name, input.description || null);
+        const output = crear_rol(context.db, input.name, input.description || null);
         response.writeHead(201, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -246,11 +252,11 @@ async function crear_rol_handler(request, response, db)
     }
 }
 
-function listar_roles_handler(request, response, db)
+function listar_roles_handler(request, response, context)
 {
     try
     {
-        const output = listar_roles(db);
+        const output = listar_roles(context.db);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -261,9 +267,9 @@ function listar_roles_handler(request, response, db)
     }
 }
 
-async function actualizar_rol_handler(request, response, db)
+async function actualizar_rol_handler(request, response, context)
 {
-    if (request.method !== 'PUT')
+    if (request.method !== 'POST')
     {
         response.writeHead(405, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Method not allowed' }));
@@ -279,7 +285,7 @@ async function actualizar_rol_handler(request, response, db)
             response.end(JSON.stringify({ error: 'id requerido' }));
             return;
         }
-        const output = actualizar_rol(db, input.id, input.name, input.description);
+        const output = actualizar_rol(context.db, input.id, input.name, input.description);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -290,16 +296,16 @@ async function actualizar_rol_handler(request, response, db)
     }
 }
 
-function eliminar_rol_handler(request, response, db)
+async function eliminar_rol_handler(request, response, context)
 {
-    if (request.method !== 'DELETE')
+    if (request.method !== 'POST')
     {
         response.writeHead(405, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Method not allowed' }));
         return;
     }
 
-    const url = new URL(request.url, 'http://localhost');
+    const url = getRequestUrl(request);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -311,7 +317,7 @@ function eliminar_rol_handler(request, response, db)
 
     try
     {
-        const output = eliminar_rol(db, id);
+        const output = eliminar_rol(context.db, id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ message: 'Rol eliminado', data: output }));
     }
@@ -322,7 +328,7 @@ function eliminar_rol_handler(request, response, db)
     }
 }
 
-async function crear_permiso_handler(request, response, db)
+async function crear_permiso_handler(request, response, context)
 {
     if (request.method !== 'POST')
     {
@@ -334,7 +340,7 @@ async function crear_permiso_handler(request, response, db)
     try
     {
         const input = await parseRequestBody(request);
-        const output = crear_permiso(db, input.name, input.description || null);
+        const output = crear_permiso(context.db, input.name, input.description || null);
         response.writeHead(201, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -345,11 +351,11 @@ async function crear_permiso_handler(request, response, db)
     }
 }
 
-function listar_permisos_handler(request, response, db)
+function listar_permisos_handler(request, response, context)
 {
     try
     {
-        const output = listar_permisos(db);
+        const output = listar_permisos(context.db);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -360,9 +366,9 @@ function listar_permisos_handler(request, response, db)
     }
 }
 
-async function actualizar_permiso_handler(request, response, db)
+async function actualizar_permiso_handler(request, response, context)
 {
-    if (request.method !== 'PUT')
+    if (request.method !== 'POST')
     {
         response.writeHead(405, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Method not allowed' }));
@@ -378,7 +384,7 @@ async function actualizar_permiso_handler(request, response, db)
             response.end(JSON.stringify({ error: 'id requerido' }));
             return;
         }
-        const output = actualizar_permiso(db, input.id, input.name, input.description);
+        const output = actualizar_permiso(context.db, input.id, input.name, input.description);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -389,16 +395,16 @@ async function actualizar_permiso_handler(request, response, db)
     }
 }
 
-function eliminar_permiso_handler(request, response, db)
+async function eliminar_permiso_handler(request, response, context)
 {
-    if (request.method !== 'DELETE')
+    if (request.method !== 'POST')
     {
         response.writeHead(405, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Method not allowed' }));
         return;
     }
 
-    const url = new URL(request.url, 'http://localhost');
+    const url = getRequestUrl(request);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -410,7 +416,7 @@ function eliminar_permiso_handler(request, response, db)
 
     try
     {
-        const output = eliminar_permiso(db, id);
+        const output = eliminar_permiso(context.db, id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ message: 'Permiso eliminado', data: output }));
     }
@@ -421,7 +427,7 @@ function eliminar_permiso_handler(request, response, db)
     }
 }
 
-async function asignar_permiso_rol_handler(request, response, db)
+async function asignar_permiso_rol_handler(request, response, context)
 {
     if (request.method !== 'POST')
     {
@@ -433,7 +439,7 @@ async function asignar_permiso_rol_handler(request, response, db)
     try
     {
         const input = await parseRequestBody(request);
-        const output = asignar_permiso_a_rol(db, input.role_id, input.permission_id);
+        const output = asignar_permiso_a_rol(context.db, input.role_id, input.permission_id);
         response.writeHead(201, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }
@@ -444,9 +450,9 @@ async function asignar_permiso_rol_handler(request, response, db)
     }
 }
 
-function obtener_permisos_rol_handler(request, response, db)
+function obtener_permisos_rol_handler(request, response, context)
 {
-    const url = new URL(request.url, 'http://localhost');
+    const url = getRequestUrl(request);
     const role_id = url.searchParams.get('role_id');
 
     if (!role_id)
@@ -458,7 +464,7 @@ function obtener_permisos_rol_handler(request, response, db)
 
     try
     {
-        const output = obtener_permisos_rol(db, role_id);
+        const output = obtener_permisos_rol(context.db, role_id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(output));
     }

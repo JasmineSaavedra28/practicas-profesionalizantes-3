@@ -69,22 +69,22 @@ Todas las operaciones siguen una convención de nombres consistente: **[verbo]_[
 - **POST** `/usuarios/crear` - Crear usuario
 - **GET** `/usuarios/leer?id=<id>` - Leer usuario
 - **GET** `/usuarios/listar` - Listar usuarios
-- **PUT** `/usuarios/actualizar` - Actualizar usuario
-- **DELETE** `/usuarios/eliminar?id=<id>` - Eliminar usuario
+- **POST** `/usuarios/actualizar` - Actualizar usuario
+- **POST** `/usuarios/eliminar?id=<id>` - Eliminar usuario
 
 ### Roles
 - **POST** `/roles/crear` - Crear rol
 - **GET** `/roles/listar` - Listar roles
-- **PUT** `/roles/actualizar` - Actualizar rol
-- **DELETE** `/roles/eliminar?id=<id>` - Eliminar rol
+- **POST** `/roles/actualizar` - Actualizar rol
+- **POST** `/roles/eliminar?id=<id>` - Eliminar rol
 - **POST** `/roles/asignar-permiso` - Asignar permiso a rol
 - **GET** `/roles/permisos?role_id=<id>` - Obtener permisos de un rol
 
 ### Permisos
 - **POST** `/permisos/crear` - Crear permiso
 - **GET** `/permisos/listar` - Listar permisos
-- **PUT** `/permisos/actualizar` - Actualizar permiso
-- **DELETE** `/permisos/eliminar?id=<id>` - Eliminar permiso
+- **POST** `/permisos/actualizar` - Actualizar permiso
+- **POST** `/permisos/eliminar?id=<id>` - Eliminar permiso
 
 ## Instalación y Uso
 
@@ -186,13 +186,13 @@ curl "http://127.0.0.1:3001/roles/permisos?role_id=1"
 
 ### Actualizar un usuario
 ```bash
-curl -X PUT http://127.0.0.1:3001/usuarios/actualizar \
+curl -X POST http://127.0.0.1:3001/usuarios/actualizar \
   -d "id=1&username=admin_updated&password=newpass&email=admin@new.com&role_id=1"
 ```
 
 ### Eliminar un usuario
 ```bash
-curl -X DELETE "http://127.0.0.1:3001/usuarios/eliminar?id=31"
+curl -X POST "http://127.0.0.1:3001/usuarios/eliminar?id=31"
 ```
 
 ## Tecnologías
@@ -200,7 +200,7 @@ curl -X DELETE "http://127.0.0.1:3001/usuarios/eliminar?id=31"
 - **Runtime:** Node.js
 - **Base de datos:** SQLite (built-in con Node.js)
 - **Frontend:** HTML5 + CSS3 + Vanilla JavaScript (sin frameworks)
-- **API:** REST puro sin librerías externas
+- **API:** RPC-style HTTP usando rutas y métodos GET/POST
 
 ## Estructura de Archivos
 

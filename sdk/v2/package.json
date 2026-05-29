@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node src/server.mjs",
+    "start": "node main.js",
     "seed": "node seed.mjs"
   },
   "dependencies": {

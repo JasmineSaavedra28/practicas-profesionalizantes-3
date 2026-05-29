@@ -1,10 +1,10 @@
+import { connect_db } from './src/db.mjs';
 import {
-    connect_db,
     crear_usuario,
     crear_rol,
     crear_permiso,
     asignar_permiso_a_rol
-} from './src/db.mjs';
+} from './src/usecase.mjs';
 import { load_config } from './config.js';
 
 const config = load_config();

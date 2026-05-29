@@ -1,55 +1,62 @@
 import { createServer } from 'node:http';
 import { URL } from 'node:url';
+import * as handlers from './handlers.mjs';
 
-function create_router(handlers, db, config)
+function create_router()
 {
     const router = new Map();
 
-    router.set('/', (req, res) => handlers.default_handler(req, res, config));
-    router.set('/register', (req, res) => handlers.register_handler(req, res, db));
-    router.set('/login', (req, res) => handlers.login_handler(req, res, db));
+    router.set('/', handlers.default_handler);
+    router.set('/register', handlers.register_handler);
+    router.set('/login', handlers.login_handler);
 
-    router.set('/usuarios/crear', (req, res) => handlers.crear_usuario_handler(req, res, db));
-    router.set('/usuarios/leer', (req, res) => handlers.leer_usuario_handler(req, res, db));
-    router.set('/usuarios/listar', (req, res) => handlers.listar_usuarios_handler(req, res, db));
-    router.set('/usuarios/actualizar', (req, res) => handlers.actualizar_usuario_handler(req, res, db));
-    router.set('/usuarios/eliminar', (req, res) => handlers.eliminar_usuario_handler(req, res, db));
+    router.set('/usuarios/crear', handlers.crear_usuario_handler);
+    router.set('/usuarios/leer', handlers.leer_usuario_handler);
+    router.set('/usuarios/listar', handlers.listar_usuarios_handler);
+    router.set('/usuarios/actualizar', handlers.actualizar_usuario_handler);
+    router.set('/usuarios/eliminar', handlers.eliminar_usuario_handler);
 
-    router.set('/roles/crear', (req, res) => handlers.crear_rol_handler(req, res, db));
-    router.set('/roles/listar', (req, res) => handlers.listar_roles_handler(req, res, db));
-    router.set('/roles/actualizar', (req, res) => handlers.actualizar_rol_handler(req, res, db));
-    router.set('/roles/eliminar', (req, res) => handlers.eliminar_rol_handler(req, res, db));
+    router.set('/roles/crear', handlers.crear_rol_handler);
+    router.set('/roles/listar', handlers.listar_roles_handler);
+    router.set('/roles/actualizar', handlers.actualizar_rol_handler);
+    router.set('/roles/eliminar', handlers.eliminar_rol_handler);
 
-    router.set('/permisos/crear', (req, res) => handlers.crear_permiso_handler(req, res, db));
-    router.set('/permisos/listar', (req, res) => handlers.listar_permisos_handler(req, res, db));
-    router.set('/permisos/actualizar', (req, res) => handlers.actualizar_permiso_handler(req, res, db));
-    router.set('/permisos/eliminar', (req, res) => handlers.eliminar_permiso_handler(req, res, db));
+    router.set('/permisos/crear', handlers.crear_permiso_handler);
+    router.set('/permisos/listar', handlers.listar_permisos_handler);
+    router.set('/permisos/actualizar', handlers.actualizar_permiso_handler);
+    router.set('/permisos/eliminar', handlers.eliminar_permiso_handler);
 
-    router.set('/roles/asignar-permiso', (req, res) => handlers.asignar_permiso_rol_handler(req, res, db));
-    router.set('/roles/permisos', (req, res) => handlers.obtener_permisos_rol_handler(req, res, db));
+    router.set('/roles/asignar-permiso', handlers.asignar_permiso_rol_handler);
+    router.set('/roles/permisos', handlers.obtener_permisos_rol_handler);
 
     return router;
 }
 
-async function request_dispatcher(request, response, router, config)
+function getRequestUrl(request)
 {
-    const url = new URL(request.url, 'http://localhost:' + config.server.port);
+    const host = request.headers.host || '127.0.0.1';
+    return new URL(request.url, `http://${host}`);
+}
+
+async function request_dispatcher(request, response, router, context)
+{
+    const url = getRequestUrl(request);
     const path = url.pathname;
     const handler = router.get(path);
 
     if (handler)
     {
-        return await handler(request, response);
+        return await handler(request, response, context);
     }
 
     response.writeHead(404, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify({ error: 'Ruta no encontrada' }));
 }
 
-function start_server(config, router)
+function start_server(config, router, context)
 {
     console.log('Servidor ejecutándose en http://' + config.server.ip + ':' + config.server.port);
-    const server = createServer((req, res) => request_dispatcher(req, res, router, config));
+    const server = createServer((req, res) => request_dispatcher(req, res, router, context));
     server.listen(config.server.port, config.server.ip);
 }
 
