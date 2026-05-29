@@ -20,14 +20,21 @@ import {
     obtener_permisos_rol
 } from './usecase.mjs';
 
-function getRequestUrl(request, context)
+function getRequestUrl(request, config)
 {
-    const host = request.headers.host || `${context.config.server.ip}:${context.config.server.port}`;
+    const host = request.headers.host || `${config.server.ip}:${config.server.port}`;
     return new URL(request.url, `http://${host}`);
 }
 
 function default_handler(request, response, context)
 {
+    if (request.method !== 'GET')
+    {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
     try
     {
         const html = readFileSync(context.config.server.default_path, 'utf-8');
@@ -124,7 +131,14 @@ async function crear_usuario_handler(request, response, context)
 
 function leer_usuario_handler(request, response, context)
 {
-    const url = getRequestUrl(request, context);
+    if (request.method !== 'GET')
+    {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
+    const url = getRequestUrl(request, context.config);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -155,6 +169,13 @@ function leer_usuario_handler(request, response, context)
 
 function listar_usuarios_handler(request, response, context)
 {
+    if (request.method !== 'GET')
+    {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
     try
     {
         const output = listar_usuarios(context.db);
@@ -206,7 +227,7 @@ async function eliminar_usuario_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request, context);
+    const url = getRequestUrl(request, context.config);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -254,6 +275,13 @@ async function crear_rol_handler(request, response, context)
 
 function listar_roles_handler(request, response, context)
 {
+    if (request.method !== 'GET')
+    {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
     try
     {
         const output = listar_roles(context.db);
@@ -305,7 +333,7 @@ async function eliminar_rol_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request, context);
+    const url = getRequestUrl(request, context.config);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -353,6 +381,13 @@ async function crear_permiso_handler(request, response, context)
 
 function listar_permisos_handler(request, response, context)
 {
+    if (request.method !== 'GET')
+    {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
     try
     {
         const output = listar_permisos(context.db);
@@ -404,7 +439,7 @@ async function eliminar_permiso_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request, context);
+    const url = getRequestUrl(request, context.config);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -452,7 +487,14 @@ async function asignar_permiso_rol_handler(request, response, context)
 
 function obtener_permisos_rol_handler(request, response, context)
 {
-    const url = getRequestUrl(request, context);
+    if (request.method !== 'GET')
+    {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
+    const url = getRequestUrl(request, context.config);
     const role_id = url.searchParams.get('role_id');
 
     if (!role_id)

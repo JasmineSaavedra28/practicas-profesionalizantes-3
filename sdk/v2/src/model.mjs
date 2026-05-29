@@ -1,3 +1,41 @@
+function inicializar_tablas(db)
+{
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS role (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS permission (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS user (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            email TEXT UNIQUE,
+            role_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (role_id) REFERENCES role(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS role_permission (
+            role_id INTEGER NOT NULL,
+            permission_id INTEGER NOT NULL,
+            PRIMARY KEY (role_id, permission_id),
+            FOREIGN KEY (role_id) REFERENCES role(id),
+            FOREIGN KEY (permission_id) REFERENCES permission(id)
+        );
+    `);
+}
+
 function crear_usuario(db, username, password, email, role_id = null)
 {
     const sql = "INSERT INTO user (username, password, email, role_id) VALUES (?, ?, ?, ?) RETURNING id, username, email, role_id, created_at";
@@ -131,6 +169,7 @@ function obtener_permisos_rol(db, role_id)
 }
 
 export {
+    inicializar_tablas,
     crear_usuario,
     leer_usuario,
     leer_usuario_por_username,
