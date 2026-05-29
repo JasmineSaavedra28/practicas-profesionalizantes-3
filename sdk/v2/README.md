@@ -1,242 +1,105 @@
-# Framework de Trabajo - Parte II: Autenticación y Gestión de Permisos
+# SDK v2 — Sistema de Autenticación y Gestión de Permisos
 
 ## Descripción
 
-Sistema completo de autenticación y gestión de permisos basado en roles. Implementa operaciones CRUD consistentes para usuarios, roles y permisos con una interfaz web interactiva.
+Proyecto de `sdk/v2` para el trabajo práctico de autenticación y permisos. Incluye:
+- Gestión de usuarios
+- Gestión de roles
+- Gestión de permisos
+- Asignación de permisos a roles
+- Interfaz web simple en un solo archivo HTML
+- Base de datos SQLite integrada (`db.sqlite3`)
 
-## Estructura de la Base de Datos
+## Estado del Proyecto
 
-### Tablas Principales
+- La lógica de conexión a la base de datos está en `src/db.mjs`
+- Las consultas CRUD y la gestión de relaciones están en `src/model.mjs`
+- La lógica de negocio y validación está en `src/usecase.mjs`
+- Los handlers HTTP están en `src/handlers.mjs`
+- El router y dispatcher están en `src/server.mjs`
+- El servidor se inicia desde `main.js`
+- La interfaz web se sirve desde `public/default.html`
 
-#### `user`
-- **id** (INTEGER): ID único del usuario (PK, autoincrementado)
-- **username** (TEXT): Nombre de usuario único
-- **password** (TEXT): Contraseña
-- **email** (TEXT): Email único del usuario
-- **role_id** (INTEGER): ID del rol asignado (FK)
-- **created_at** (DATETIME): Timestamp de creación
-- **updated_at** (DATETIME): Timestamp de última actualización
-
-#### `role`
-- **id** (INTEGER): ID único del rol (PK, autoincrementado)
-- **name** (TEXT): Nombre único del rol
-- **description** (TEXT): Descripción del rol
-- **created_at** (DATETIME): Timestamp de creación
-
-#### `permission`
-- **id** (INTEGER): ID único del permiso (PK, autoincrementado)
-- **name** (TEXT): Nombre único del permiso
-- **description** (TEXT): Descripción del permiso
-- **created_at** (DATETIME): Timestamp de creación
-
-#### `role_permission`
-- **role_id** (INTEGER): ID del rol (FK, PK)
-- **permission_id** (INTEGER): ID del permiso (FK, PK)
-- Relación de muchos-a-muchos entre roles y permisos
-
-## Funcionalidades CRUD
-
-Todas las operaciones siguen una convención de nombres consistente: **[verbo]_[entidad]**
+## Endpoints disponibles
 
 ### Usuarios
-- `crear_usuario(db, username, password, email, role_id)` - Crear nuevo usuario
-- `leer_usuario(db, id)` - Leer un usuario específico
-- `listar_usuarios(db)` - Listar todos los usuarios
-- `actualizar_usuario(db, id, username, password, email, role_id)` - Actualizar usuario
-- `eliminar_usuario(db, id)` - Eliminar un usuario
+- **POST** `/usuarios/crear`
+- **GET** `/usuarios/leer?id=<id>`
+- **GET** `/usuarios/listar`
+- **POST** `/usuarios/actualizar`
+- **POST** `/usuarios/eliminar?id=<id>`
 
 ### Roles
-- `crear_rol(db, name, description)` - Crear nuevo rol
-- `leer_rol(db, id)` - Leer un rol específico
-- `listar_roles(db)` - Listar todos los roles
-- `actualizar_rol(db, id, name, description)` - Actualizar rol
-- `eliminar_rol(db, id)` - Eliminar un rol
+- **POST** `/roles/crear`
+- **GET** `/roles/listar`
+- **POST** `/roles/actualizar`
+- **POST** `/roles/eliminar?id=<id>`
+- **POST** `/roles/asignar-permiso`
+- **GET** `/roles/permisos?role_id=<id>`
 
 ### Permisos
-- `crear_permiso(db, name, description)` - Crear nuevo permiso
-- `leer_permiso(db, id)` - Leer un permiso específico
-- `listar_permisos(db)` - Listar todos los permisos
-- `actualizar_permiso(db, id, name, description)` - Actualizar permiso
-- `eliminar_permiso(db, id)` - Eliminar un permiso
+- **POST** `/permisos/crear`
+- **GET** `/permisos/listar`
+- **POST** `/permisos/actualizar`
+- **POST** `/permisos/eliminar?id=<id>`
 
-### Gestión de Relaciones
-- `asignar_permiso_a_rol(db, role_id, permission_id)` - Asignar permiso a rol
-- `obtener_permisos_rol(db, role_id)` - Obtener permisos de un rol
+## Instalación y ejecución
 
-## Endpoints API
+Desde `sdk/v2`:
 
-### Usuarios
-- **POST** `/usuarios/crear` - Crear usuario
-- **GET** `/usuarios/leer?id=<id>` - Leer usuario
-- **GET** `/usuarios/listar` - Listar usuarios
-- **POST** `/usuarios/actualizar` - Actualizar usuario
-- **POST** `/usuarios/eliminar?id=<id>` - Eliminar usuario
-
-### Roles
-- **POST** `/roles/crear` - Crear rol
-- **GET** `/roles/listar` - Listar roles
-- **POST** `/roles/actualizar` - Actualizar rol
-- **POST** `/roles/eliminar?id=<id>` - Eliminar rol
-- **POST** `/roles/asignar-permiso` - Asignar permiso a rol
-- **GET** `/roles/permisos?role_id=<id>` - Obtener permisos de un rol
-
-### Permisos
-- **POST** `/permisos/crear` - Crear permiso
-- **GET** `/permisos/listar` - Listar permisos
-- **POST** `/permisos/actualizar` - Actualizar permiso
-- **POST** `/permisos/eliminar?id=<id>` - Eliminar permiso
-
-## Instalación y Uso
-
-Para ejecutar este proyecto, abre una terminal en la carpeta `v2`:
-
-```bash
-cd c:\Users\Jazmín\Downloads\practicas-profesionalizantes-3\sdk\v2
-```
-
-### 1. Instalar dependencias
 ```bash
 npm install
-```
-
-### 2. Generar datos de prueba
-```bash
 npm run seed
-```
-
-Este script crea automáticamente:
-- **4 roles** predefinidos (Administrador, Gerente, Usuario, Invitado)
-- **15 permisos** variados
-- **30 usuarios** de prueba con diferentes roles
-
-### 3. Iniciar el servidor
-```bash
 npm start
 ```
 
-> Si usas otra terminal, asegúrate de estar siempre en el directorio `v2` antes de ejecutar los comandos.
+Luego abrir `http://127.0.0.1:3001` en el navegador.
 
-El servidor se ejecutará en `http://127.0.0.1:3001`.
+## Notas importantes
 
-### 4. Acceder a la interfaz web
-Abrir `http://127.0.0.1:3001` en el navegador para acceder al panel de gestión completo.
+- No incluir `node_modules/` en el repositorio.
+- La interfaz está en un solo archivo HTML: `public/default.html`.
+- No se usan frameworks frontend.
+- `db.sqlite3` se conserva como base de datos del TP.
 
-### 5. Actualizar datos de prueba
-Si necesitas regenerar los datos desde cero, elimina `db.sqlite3` y vuelve a correr:
+## Comandos útiles
 
 ```bash
-Remove-Item db.sqlite3
+npm install
 npm run seed
+npm start
 ```
 
-## Datos de Prueba Generados
+## Archivo de configuración
 
-### Roles
-| ID | Nombre | Descripción |
-|----|--------|------------|
-| 1 | Administrador | Usuario con acceso total al sistema |
-| 2 | Gerente | Gerente con permisos de lectura y escritura |
-| 3 | Usuario | Usuario estándar con permisos limitados |
-| 4 | Invitado | Usuario invitado de solo lectura |
+- `config.json` define la IP, el puerto y la ruta del HTML.
+- `db.sqlite3` es la base de datos usada por el servidor.
 
-### Usuarios de Ejemplo
-- **admin** - Rol: Administrador (ID: 1)
-- **manager1, manager2** - Rol: Gerente (ID: 2)
-- **usuario1-5** - Rol: Usuario (ID: 3)
-- **invitado1, invitado2** - Rol: Invitado (ID: 4)
-- **usuario_test_6 a usuario_test_25** - Diversos roles (20 usuarios adicionales)
-
-**Contraseña para todos los usuarios de prueba:** `password123`
-
-## Características
-
-✅ **CRUD Consistente** - Todas las operaciones siguen el patrón [verbo]_[entidad]
-
-✅ **Sistema de Roles** - Gestión completa de roles en el sistema
-
-✅ **Sistema de Permisos** - Permisos granulares y asignables a roles
-
-✅ **Relaciones Many-to-Many** - Roles pueden tener múltiples permisos
-
-✅ **Interfaz Web** - Panel HTML interactivo sin frameworks
-
-✅ **Datos de Prueba** - 30 usuarios + roles + permisos precargados
-
-✅ **Timestamps** - created_at y updated_at en todas las entidades
-
-✅ **API REST** - Endpoints consistentes basados en convenciones
-
-## Ejemplos de Uso
-
-### Crear un usuario
-```bash
-curl -X POST http://127.0.0.1:3001/usuarios/crear \
-  -d "username=newuser&password=pass123&email=new@example.com&role_id=3"
-```
-
-### Listar todos los usuarios
-```bash
-curl http://127.0.0.1:3001/usuarios/listar
-```
-
-### Obtener permisos de un rol
-```bash
-curl "http://127.0.0.1:3001/roles/permisos?role_id=1"
-```
-
-### Actualizar un usuario
-```bash
-curl -X POST http://127.0.0.1:3001/usuarios/actualizar \
-  -d "id=1&username=admin_updated&password=newpass&email=admin@new.com&role_id=1"
-```
-
-### Eliminar un usuario
-```bash
-curl -X POST "http://127.0.0.1:3001/usuarios/eliminar?id=31"
-```
-
-## Tecnologías
-
-- **Runtime:** Node.js
-- **Base de datos:** SQLite (built-in con Node.js)
-- **Frontend:** HTML5 + CSS3 + Vanilla JavaScript (sin frameworks)
-- **API:** RPC-style HTTP usando rutas y métodos GET/POST
-
-## Estructura de Archivos
+## Estructura principal
 
 ```
 v2/
-├── main.js              # Punto de entrada del servidor
-├── config.js            # Manejo de configuración
-├── config.json          # Archivo de configuración
-├── package.json         # Dependencias del proyecto
-├── package-lock.json    # Lockfile de npm
-├── seed.mjs             # Script para generar datos de prueba
-├── .gitignore           # Archivos a ignorar en git
-├── db.sqlite3           # Base de datos (se genera automáticamente)
-├── public/
-│   └── default.html     # Interfaz web interactiva
+├── main.js
+├── config.js
+├── config.json
+├── package.json
+├── package-lock.json
+├── seed.mjs
+├── .gitignore
+├── db.sqlite3
+├── public/default.html
 └── src/
-    ├── db.mjs           # Funciones CRUD y conexión a BD
-    ├── usecase.mjs      # Lógica de negocio y validaciones
-    ├── handlers.mjs     # Handlers HTTP para endpoints
-    └── server.mjs       # Router y dispatcher de requests
+    ├── db.mjs
+    ├── model.mjs
+    ├── usecase.mjs
+    ├── handlers.mjs
+    └── server.mjs
 ```
 
-## Notas Importantes
+## Consideraciones de entrega
 
-- El archivo `db.sqlite3` se genera automáticamente al ejecutar `seed.mjs`
-- No se incluye `node_modules/` en el repositorio (ver `.gitignore`)
-- La interfaz HTML está en `public/default.html` y no está modularizada
-- No se utilizan frameworks frontend, solo JavaScript vanilla y CSS puro
-- Todos los endpoints devuelven JSON
-- Las contraseñas en los datos de prueba son plaintext (para desarrollo únicamente)
-
-## Próximas Mejoras Posibles
-
-- Implementar hash de contraseñas (bcrypt)
-- Agregar autenticación con tokens/sesiones
-- Implementar validación de permisos en los handlers
-- Agregar logs de auditoría
-- Implementar paginación en listados
-- Agregar búsqueda y filtrado
+- El repositorio entregable es `sdk/v2`
+- Se mantiene la base de datos en `db.sqlite3`
+- No se incluye `node_modules`
+- Interfaz no modularizada en archivos separados
+- No se usan frameworks

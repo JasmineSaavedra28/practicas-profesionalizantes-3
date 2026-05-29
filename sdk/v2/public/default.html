@@ -162,7 +162,7 @@
     </div>
 
     <script>
-        const API = 'http://127.0.0.1:3001';
+        const API = window.location.origin;
 
         async function hacerPeticion(endpoint, metodo = 'GET', datos = null) {
             try {
@@ -218,13 +218,13 @@
                 email: document.getElementById('usuario_email_upd').value,
                 role_id: document.getElementById('usuario_role_id_upd').value
             };
-            const resultado = await hacerPeticion('/usuarios/actualizar', 'PUT', datos);
+            const resultado = await hacerPeticion('/usuarios/actualizar', 'POST', datos);
             mostrarResultado('resultado_usuarios', resultado);
         }
 
         async function eliminarUsuario() {
             const id = document.getElementById('usuario_id_del').value;
-            const resultado = await hacerPeticion(`/usuarios/eliminar?id=${id}`, 'DELETE');
+            const resultado = await hacerPeticion(`/usuarios/eliminar?id=${id}`, 'POST');
             mostrarResultado('resultado_usuarios', resultado);
         }
 
@@ -249,13 +249,13 @@
                 name: document.getElementById('rol_name_upd').value,
                 description: document.getElementById('rol_description_upd').value
             };
-            const resultado = await hacerPeticion('/roles/actualizar', 'PUT', datos);
+            const resultado = await hacerPeticion('/roles/actualizar', 'POST', datos);
             mostrarResultado('resultado_roles', resultado);
         }
 
         async function eliminarRol() {
             const id = document.getElementById('rol_id_del').value;
-            const resultado = await hacerPeticion(`/roles/eliminar?id=${id}`, 'DELETE');
+            const resultado = await hacerPeticion(`/roles/eliminar?id=${id}`, 'POST');
             mostrarResultado('resultado_roles', resultado);
         }
 
@@ -280,13 +280,13 @@
                 name: document.getElementById('permiso_name_upd').value,
                 description: document.getElementById('permiso_description_upd').value
             };
-            const resultado = await hacerPeticion('/permisos/actualizar', 'PUT', datos);
+            const resultado = await hacerPeticion('/permisos/actualizar', 'POST', datos);
             mostrarResultado('resultado_permisos', resultado);
         }
 
         async function eliminarPermiso() {
             const id = document.getElementById('permiso_id_del').value;
-            const resultado = await hacerPeticion(`/permisos/eliminar?id=${id}`, 'DELETE');
+            const resultado = await hacerPeticion(`/permisos/eliminar?id=${id}`, 'POST');
             mostrarResultado('resultado_permisos', resultado);
         }
 
