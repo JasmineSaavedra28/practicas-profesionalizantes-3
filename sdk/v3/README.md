@@ -6,7 +6,7 @@ de autenticación y autorización visto en clase.
 ## Resumen (qué hace)
 - Autenticación con sesiones en memoria (no persistidas).
 - Autorización basada en grupos y permisos de endpoint (`authorize`).
-- Almacenamiento de contraseñas con SHA256 + salt (campo `password_hash`).
+- Almacenamiento de contraseñas con SHA256 (procesado en el cliente).
 - Interfaz de pruebas en `default.html` con botones para probar permisos.
 
 ## Estructura actual (archivos esenciales)
@@ -23,7 +23,7 @@ de autenticación y autorización visto en clase.
 |--------|------|-------------|
 | POST | `/login` | Autentica y crea sesión |
 | POST | `/logout` | Cierra sesión |
-| POST | `/register` | Crea un usuario nuevo (guarda SHA256+salt) |
+| POST | `/register` | Crea un usuario nuevo (guarda el hash recibido) |
 | GET | `/print` | Acción protegida |
 | GET | `/log` | Acción protegida |
 | GET | `/help` | Acción protegida |
@@ -46,9 +46,9 @@ de autenticación y autorización visto en clase.
 
 ## Contraseñas
 
-- Al crear un usuario (`/register`) se genera un `salt` único y se guarda
-  `password_hash = SHA256(password + salt)` en la tabla `user`.
-- La autenticación compara `SHA256(password + salt)` con `password_hash`.
+- La seguridad se basa en el **hashing del lado del cliente**. El archivo `default.html` utiliza la función `calcularhashsha256` para que la contraseña nunca viaje en texto plano por la red.
+- El servidor recibe directamente el hash y lo almacena o compara en la tabla `user` (columna `password_hash`).
+- Se eliminó el uso de `salt` para simplificar la lógica de persistencia y evitar inconsistencias en el proceso de autenticación, siguiendo las recomendaciones de cátedra.
 - Nota: SHA256 es irreversible pero es un hash rápido; para producción
   considerar `bcrypt` o `argon2`.
 
@@ -77,8 +77,4 @@ node test-api.mjs
 - acceso denegado a `/sayHello`
 - sesión validada correctamente
 - logout exitoso
-- verificación de hash SHA256 + salt
-
-
-
-
+- verificación de hash SHA256
