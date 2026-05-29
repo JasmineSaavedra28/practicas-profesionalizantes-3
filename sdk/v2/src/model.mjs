@@ -36,6 +36,16 @@ function inicializar_tablas(db)
     `);
 }
 
+function iniciar_sesion(db, username, password)
+{
+    const user = leer_usuario_por_username(db, username);
+    if (!user || user.password !== password)
+    {
+        throw new Error("Usuario o contraseña incorrectos");
+    }
+    return { status: true, username: user.username, role_id: user.role_id };
+}
+
 function crear_usuario(db, username, password, email, role_id = null)
 {
     const sql = "INSERT INTO user (username, password, email, role_id) VALUES (?, ?, ?, ?) RETURNING id, username, email, role_id, created_at";
@@ -170,6 +180,7 @@ function obtener_permisos_rol(db, role_id)
 
 export {
     inicializar_tablas,
+    iniciar_sesion,
     crear_usuario,
     leer_usuario,
     leer_usuario_por_username,

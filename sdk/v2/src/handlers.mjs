@@ -1,9 +1,9 @@
-import { URL } from 'node:url';
 import { parse } from 'node:querystring';
 import { readFileSync } from 'node:fs';
+import { getRequestUrl } from './server.mjs';
 import {
-    crear_usuario,
     iniciar_sesion,
+    crear_usuario,
     leer_usuario,
     listar_usuarios,
     actualizar_usuario,
@@ -18,13 +18,7 @@ import {
     eliminar_permiso,
     asignar_permiso_a_rol,
     obtener_permisos_rol
-} from './usecase.mjs';
-
-function getRequestUrl(request, config)
-{
-    const host = request.headers.host || `${config.server.ip}:${config.server.port}`;
-    return new URL(request.url, `http://${host}`);
-}
+} from './model.mjs';
 
 function default_handler(request, response, context)
 {

@@ -42,4 +42,4 @@ function start_server(config, router, context)
     server.listen(config.server.port, config.server.ip);
 }
 
-export { create_router, start_server };
+export { create_router, start_server, getRequestUrl };
