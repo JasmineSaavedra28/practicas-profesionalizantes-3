@@ -305,7 +305,7 @@ async function eliminar_rol_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request);
+    const url = getRequestUrl(request, context);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -404,7 +404,7 @@ async function eliminar_permiso_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request);
+    const url = getRequestUrl(request, context);
     const id = url.searchParams.get('id');
 
     if (!id)
