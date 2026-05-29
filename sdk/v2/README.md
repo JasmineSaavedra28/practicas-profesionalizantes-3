@@ -8,13 +8,12 @@ Proyecto de `sdk/v2` para el trabajo práctico de autenticación y permisos. Inc
 - Gestión de permisos
 - Asignación de permisos a roles
 - Interfaz web simple en un solo archivo HTML
-- Base de datos SQLite integrada (`db.sqlite3`)
+- Base de datos SQLite integrada con persistencia.
 
 ## Estado del Proyecto
 
-- La lógica de conexión a la base de datos está en `src/db.mjs`
-- Las consultas CRUD y la gestión de relaciones están en `src/model.mjs`
-- La lógica de negocio y validación está en `src/usecase.mjs`
+- **Arquitectura Desacoplada**: El ruteador es genérico y no tiene dependencias de lógica o base de datos.
+- **Capa de Datos**: `src/db.mjs` solo provee la conexión. El esquema y las funciones de ABM están en `src/model.mjs`.
 - Los handlers HTTP están en `src/handlers.mjs`
 - El router y dispatcher están en `src/server.mjs`
 - El servidor se inicia desde `main.js`
@@ -27,13 +26,13 @@ Proyecto de `sdk/v2` para el trabajo práctico de autenticación y permisos. Inc
 - **GET** `/usuarios/leer?id=<id>`
 - **GET** `/usuarios/listar`
 - **POST** `/usuarios/actualizar`
-- **POST** `/usuarios/eliminar?id=<id>`
+- **POST** `/usuarios/eliminar` (vía Body ID)
 
 ### Roles
 - **POST** `/roles/crear`
 - **GET** `/roles/listar`
 - **POST** `/roles/actualizar`
-- **POST** `/roles/eliminar?id=<id>`
+- **POST** `/roles/eliminar?id=<id>` (RPC via Query)
 - **POST** `/roles/asignar-permiso`
 - **GET** `/roles/permisos?role_id=<id>`
 
@@ -41,7 +40,7 @@ Proyecto de `sdk/v2` para el trabajo práctico de autenticación y permisos. Inc
 - **POST** `/permisos/crear`
 - **GET** `/permisos/listar`
 - **POST** `/permisos/actualizar`
-- **POST** `/permisos/eliminar?id=<id>`
+- **POST** `/permisos/eliminar?id=<id>` (RPC via Query)
 
 ## Instalación y ejecución
 
@@ -57,10 +56,10 @@ Luego abrir `http://127.0.0.1:3001` en el navegador.
 
 ## Notas importantes
 
-- No incluir `node_modules/` en el repositorio.
-- La interfaz está en un solo archivo HTML: `public/default.html`.
-- No se usan frameworks frontend.
-- `db.sqlite3` se conserva como base de datos del TP.
+- **Patrón RPC**: Se utilizan exclusivamente métodos **GET** y **POST** para cumplir con el esquema de la materia.
+- **Configuración Dinámica**: El servidor resuelve la URL base mediante `config.json` y headers de petición, eliminando URLs estáticas en el código.
+- **Inyección de Dependencias**: El `context` (db y config) se inyecta en los handlers en tiempo de despacho.
+- **Estructura Limpia**: Se eliminó `usecase.mjs` consolidando la lógica en el modelo para evitar redundancias.
 
 ## Comandos útiles
 
@@ -84,14 +83,12 @@ v2/
 ├── config.json
 ├── package.json
 ├── package-lock.json
-├── seed.mjs
 ├── .gitignore
 ├── db.sqlite3
 ├── public/default.html
 └── src/
     ├── db.mjs
     ├── model.mjs
-    ├── usecase.mjs
     ├── handlers.mjs
     └── server.mjs
 ```

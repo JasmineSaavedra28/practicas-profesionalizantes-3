@@ -44,12 +44,14 @@ function default_handler(request, response, context)
 
 function parseRequestBody(request)
 {
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
         let body = '';
-        request.on('data', chunk => {
+        request.on('data', function (chunk) {
             body += chunk.toString();
         });
-        request.on('end', () => resolve(parse(body)));
+        request.on('end', function () {
+            resolve(parse(body));
+        });
         request.on('error', reject);
     });
 }
@@ -221,19 +223,12 @@ async function eliminar_usuario_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request, context.config);
-    const id = url.searchParams.get('id');
-
-    if (!id)
-    {
-        response.writeHead(400, { 'Content-Type': 'application/json' });
-        response.end(JSON.stringify({ error: 'id requerido' }));
-        return;
-    }
-
     try
     {
-        const output = eliminar_usuario(context.db, id);
+        const input = await parseRequestBody(request);
+        if (!input.id) throw new Error("id requerido");
+        
+        const output = eliminar_usuario(context.db, input.id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ message: 'Usuario eliminado', data: output }));
     }
