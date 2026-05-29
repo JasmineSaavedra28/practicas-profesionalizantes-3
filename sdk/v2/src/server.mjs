@@ -32,15 +32,15 @@ function create_router()
     return router;
 }
 
-function getRequestUrl(request)
+function getRequestUrl(request, config)
 {
-    const host = request.headers.host || '127.0.0.1';
+    const host = request.headers.host || `${config.server.ip}:${config.server.port}`;
     return new URL(request.url, `http://${host}`);
 }
 
 async function request_dispatcher(request, response, router, context)
 {
-    const url = getRequestUrl(request);
+    const url = getRequestUrl(request, context.config);
     const path = url.pathname;
     const handler = router.get(path);
 
@@ -53,10 +53,18 @@ async function request_dispatcher(request, response, router, context)
     response.end(JSON.stringify({ error: 'Ruta no encontrada' }));
 }
 
+function create_request_listener(router, context)
+{
+    return function request_listener(request, response)
+    {
+        return request_dispatcher(request, response, router, context);
+    };
+}
+
 function start_server(config, router, context)
 {
     console.log('Servidor ejecutándose en http://' + config.server.ip + ':' + config.server.port);
-    const server = createServer((req, res) => request_dispatcher(req, res, router, context));
+    const server = createServer(create_request_listener(router, context));
     server.listen(config.server.port, config.server.ip);
 }
 

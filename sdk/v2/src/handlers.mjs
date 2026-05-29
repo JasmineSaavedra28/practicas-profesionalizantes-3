@@ -20,9 +20,9 @@ import {
     obtener_permisos_rol
 } from './usecase.mjs';
 
-function getRequestUrl(request)
+function getRequestUrl(request, context)
 {
-    const host = request.headers.host || '127.0.0.1';
+    const host = request.headers.host || `${context.config.server.ip}:${context.config.server.port}`;
     return new URL(request.url, `http://${host}`);
 }
 
@@ -124,7 +124,7 @@ async function crear_usuario_handler(request, response, context)
 
 function leer_usuario_handler(request, response, context)
 {
-    const url = getRequestUrl(request);
+    const url = getRequestUrl(request, context);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -206,7 +206,7 @@ async function eliminar_usuario_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request);
+    const url = getRequestUrl(request, context);
     const id = url.searchParams.get('id');
 
     if (!id)
@@ -452,7 +452,7 @@ async function asignar_permiso_rol_handler(request, response, context)
 
 function obtener_permisos_rol_handler(request, response, context)
 {
-    const url = getRequestUrl(request);
+    const url = getRequestUrl(request, context);
     const role_id = url.searchParams.get('role_id');
 
     if (!role_id)
