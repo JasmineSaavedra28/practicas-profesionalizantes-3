@@ -39,14 +39,6 @@ function hashSha256(value) {
     return createHash('sha256').update(value).digest('hex');
 }
 
-function generateSalt(length = 16) {
-    return randomBytes(length).toString('hex');
-}
-
-function hashPasswordWithSalt(password, salt) {
-    return hashSha256(password + salt);
-}
-
 function isSessionActive(username) {
     const session = sessions.get(username);
     return session && session.enabled === true;
@@ -67,15 +59,15 @@ function terminateSession(username) {
     sessions.delete(username);
 }
 
-function authenticate(username, password) {
-    const sql = 'SELECT id, username, password_hash, salt FROM user WHERE username = ?';
+function authenticate(username, passwordHash) {
+    const sql = 'SELECT id, username, password_hash FROM user WHERE username = ?';
     const row = db.prepare(sql).get(username);
-    if (!row || !row.password_hash || !row.salt) {
+    if (!row || !row.password_hash) {
         return null;
     }
 
-    const candidate = hashPasswordWithSalt(password, row.salt);
-    if (candidate === row.password_hash) {
+    // Comparación directa de hashes (ambos vienen del frontend)
+    if (passwordHash === row.password_hash) {
         return { id: row.id, username: row.username };
     }
     return null;
@@ -189,10 +181,9 @@ async function registerHandler(request, response) {
             return;
         }
 
-        const salt = generateSalt();
-        const password_hash = hashPasswordWithSalt(input.password, salt);
-        const sql = 'INSERT INTO user (username, password_hash, salt) VALUES (?, ?, ?)';
-        const result = db.prepare(sql).run(input.username, password_hash, salt);
+        // El input.password ya viene hasheado del frontend
+        const sql = 'INSERT INTO user (username, password_hash) VALUES (?, ?)';
+        const result = db.prepare(sql).run(input.username, input.password);
 
         respondJson(response, 201, { success: true, id: result.lastInsertRowid, username: input.username });
     } catch (error) {
@@ -237,29 +228,32 @@ async function actionHandler(request, response, actionPath) {
     });
 }
 
+// Abstracción para evitar el uso de switch
+const PUBLIC_ROUTES = {
+    '/': defaultHandler,
+    '/login': loginHandler,
+    '/logout': logoutHandler,
+    '/register': registerHandler
+};
+
+const PROTECTED_ACTIONS = ['/print', '/log', '/help', '/sayHello', '/sayBye'];
+
 function requestDispatcher(request, response) {
     const host = request.headers.host || `${config.server.ip}:${config.server.port}`;
     const url = new URL(request.url, `http://${host}`);
     const path = url.pathname;
 
-    switch (path) {
-        case '/':
-            return defaultHandler(request, response);
-        case '/login':
-            return loginHandler(request, response);
-        case '/logout':
-            return logoutHandler(request, response);
-        case '/register':
-            return registerHandler(request, response);
-        case '/print':
-        case '/log':
-        case '/help':
-        case '/sayHello':
-        case '/sayBye':
-            return actionHandler(request, response, path);
-        default:
-            respondJson(response, 404, { error: 'Endpoint no encontrado.' });
+    // 1. Verificamos si es una ruta pública
+    if (PUBLIC_ROUTES[path]) {
+        return PUBLIC_ROUTES[path](request, response);
     }
+
+    // 2. Verificamos si es una acción protegida
+    if (PROTECTED_ACTIONS.includes(path)) {
+        return actionHandler(request, response, path);
+    }
+
+    respondJson(response, 404, { error: 'Endpoint no encontrado.' });
 }
 
 function start() {

@@ -363,6 +363,15 @@
 			}
 		}
 
+		// Función para calcular el hash SHA-256 en el cliente (Recomendado por el profesor)
+		async function calcularhashsha256(mensaje) {
+			const msgBuffer = new TextEncoder().encode(mensaje);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+			return hashHex;
+		}
+
 		function showResult(title, content, type = 'info') {
 			elements.resultBox.style.display = 'block';
 			elements.resultTitle.textContent = title;
@@ -383,10 +392,13 @@
 			}
 
 			try {
+				// Hasheamos la contraseña antes de enviarla al backend
+				const passwordHasheada = await calcularhashsha256(password);
+
 				const response = await fetch(API_BASE + '/login', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ username, password })
+					body: JSON.stringify({ username, password: passwordHasheada })
 				});
 
 				const data = await response.json();
@@ -462,6 +474,3 @@
 		</script>
 	</body>
 </html>
-
-
-
