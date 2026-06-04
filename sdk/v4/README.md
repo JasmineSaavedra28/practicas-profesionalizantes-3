@@ -6,6 +6,7 @@ Esta versión implementa una refactorización arquitectónica profunda centrada 
 - **Desacoplamiento**: El backend ya no sirve archivos estáticos. Funciona exclusivamente como una WebAPI.
 - **CORS**: Implementación de políticas de origen cruzado para permitir la comunicación entre diferentes servidores y puertos (Apache vs Node.js).
 - **Autenticación y Sesiones**: Uso de sesiones en memoria y cookies `HttpOnly` con soporte para credenciales en peticiones cruzadas.
+- **Autenticación y Sesiones**: Gestión de sesiones en memoria mediante un `Map` (v3).
 - **Autorización**: Control de acceso basado en base de datos mediante el mapeo de roles y permisos.
 - **Seguridad**: Hashing SHA256 realizado íntegramente en el cliente para proteger la integridad de las credenciales.
 
@@ -29,7 +30,7 @@ sdk/v4/
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| POST   | `/login`              | Autentica y genera cookie de sesión |
+| POST   | `/login`              | Autentica y crea sesión en memoria |
 | POST   | `/logout`             | Invalida la sesión actual |
 | POST   | `/register`           | Registro de usuarios |
 | GET    | `/print`, `/log`, `/help`, `/sayHello`, `/sayBye` | Acciones protegidas (heredadas de v3) |
@@ -65,4 +66,4 @@ El backend incluye cabeceras HTTP específicas para permitir la conexión desde 
    - Acceder desde el navegador a la URL de Apache (ej. `http://localhost:80/index.html`).
 
 ## Pruebas de Funcionamiento
-Utilice la interfaz web para iniciar sesión. El navegador calculará el hash SHA256 y lo enviará al backend de Node.js. Una vez autenticado, la cookie de sesión permitirá realizar pruebas de autorización sobre los endpoints `/log` (permitido) y `/sayHello` (denegado), validando la arquitectura desacoplada.
+Utilice la interfaz web para iniciar sesión. El navegador calculará el hash SHA256 y lo enviará al backend de Node.js. Una vez autenticado, se validará la sesión en memoria para realizar pruebas de autorización sobre los endpoints `/log` (permitido) y `/sayHello` (denegado), validando la arquitectura desacoplada y las políticas CORS requeridas.
