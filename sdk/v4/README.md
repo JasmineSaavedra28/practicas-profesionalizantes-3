@@ -29,12 +29,23 @@ sdk/v4/
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| POST   | `/login`            | Autentica y genera cookie de sesión |
-| POST   | `/logout`           | Invalida la sesión actual |
-| POST   | `/usuarios/crear`   | Registro de usuarios (RPC) |
-| GET    | `/usuarios/listar`  | Listado de usuarios registrados |
-| GET    | `/log`              | Acción protegida (v3 acoplada) |
-| GET    | `/sayHello`         | Acción protegida (v3 acoplada) |
+| POST   | `/login`              | Autentica y genera cookie de sesión |
+| POST   | `/logout`             | Invalida la sesión actual |
+| POST   | `/register`           | Registro de usuarios (alias de crear) |
+| POST   | `/usuarios/crear`     | Crear nuevo usuario |
+| GET    | `/usuarios/leer`      | Obtener un usuario por ID |
+| GET    | `/usuarios/listar`    | Listado de todos los usuarios |
+| POST   | `/usuarios/actualizar`| Actualizar datos de usuario |
+| POST   | `/usuarios/eliminar`  | Eliminar usuario |
+| POST   | `/roles/crear`        | Crear nuevo rol |
+| GET    | `/roles/listar`       | Listado de roles |
+| POST   | `/roles/actualizar`   | Actualizar rol |
+| POST   | `/roles/eliminar`     | Eliminar rol |
+| POST   | `/permisos/crear`     | Crear nuevo permiso |
+| GET    | `/permisos/listar`    | Listado de permisos |
+| POST   | `/roles/asignar-permiso` | Asignar un permiso a un rol |
+| GET    | `/roles/permisos`     | Ver permisos de un rol específico |
+| GET    | `/print`, `/log`, `/help`, `/sayHello`, `/sayBye` | Acciones protegidas (v3) |
 
 ## Configuración de Servidores
 
