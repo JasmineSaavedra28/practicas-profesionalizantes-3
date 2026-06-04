@@ -58,25 +58,7 @@ function parseRequestBody(request)
 
 async function register_handler(request, response, context)
 {
-    if (request.method !== 'POST')
-    {
-        response.writeHead(405, { 'Content-Type': 'application/json' });
-        response.end(JSON.stringify({ error: 'Method not allowed' }));
-        return;
-    }
-
-    try
-    {
-        const input = await parseRequestBody(request);
-        const output = crear_usuario(context.db, input.username, input.password, input.email, input.role_id || null);
-        response.writeHead(201, { 'Content-Type': 'application/json' });
-        response.end(JSON.stringify(output));
-    }
-    catch (err)
-    {
-        response.writeHead(400, { 'Content-Type': 'application/json' });
-        response.end(JSON.stringify({ error: err.message }));
-    }
+    return await crear_usuario_handler(request, response, context);
 }
 
 async function login_handler(request, response, context)
@@ -322,18 +304,12 @@ async function eliminar_rol_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request, context.config);
-    const id = url.searchParams.get('id');
-
-    if (!id)
-    {
-        response.writeHead(400, { 'Content-Type': 'application/json' });
-        response.end(JSON.stringify({ error: 'id requerido' }));
-        return;
-    }
-
     try
     {
+        const input = await parseRequestBody(request);
+        const id = input.id;
+        if (!id) throw new Error("id requerido");
+        
         const output = eliminar_rol(context.db, id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ message: 'Rol eliminado', data: output }));
@@ -428,18 +404,12 @@ async function eliminar_permiso_handler(request, response, context)
         return;
     }
 
-    const url = getRequestUrl(request, context.config);
-    const id = url.searchParams.get('id');
-
-    if (!id)
-    {
-        response.writeHead(400, { 'Content-Type': 'application/json' });
-        response.end(JSON.stringify({ error: 'id requerido' }));
-        return;
-    }
-
     try
     {
+        const input = await parseRequestBody(request);
+        const id = input.id;
+        if (!id) throw new Error("id requerido");
+
         const output = eliminar_permiso(context.db, id);
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ message: 'Permiso eliminado', data: output }));

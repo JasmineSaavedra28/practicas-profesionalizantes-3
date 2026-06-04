@@ -8,8 +8,9 @@ function create_router()
 
 function getRequestUrl(request, config)
 {
+    const protocol = request.connection.encrypted ? 'https' : 'http';
     const host = request.headers.host || `${config.server.ip}:${config.server.port}`;
-    return new URL(request.url, `http://${host}`);
+    return new URL(request.url, `${protocol}://${host}`);
 }
 
 async function request_dispatcher(request, response, router, context)

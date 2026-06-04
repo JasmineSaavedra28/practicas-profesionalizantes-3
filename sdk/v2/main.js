@@ -32,6 +32,8 @@ router.set('/permisos/eliminar', handlers.eliminar_permiso_handler);
 router.set('/roles/asignar-permiso', handlers.asignar_permiso_rol_handler);
 router.set('/roles/permisos', handlers.obtener_permisos_rol_handler);
 
-const context = { db, config };
+// Puedes incluir aquí otras utilidades que los handlers necesiten, 
+// como un logger o el router mismo si necesitan generar URLs.
+const context = { db, config, router };
 
 start_server(config, router, context);
