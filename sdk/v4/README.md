@@ -5,8 +5,7 @@ Esta versión implementa una refactorización arquitectónica profunda centrada 
 ## Resumen (qué hace)
 - **Desacoplamiento**: El backend ya no sirve archivos estáticos. Funciona exclusivamente como una WebAPI.
 - **CORS**: Implementación de políticas de origen cruzado para permitir la comunicación entre diferentes servidores y puertos (Apache vs Node.js).
-- **Autenticación y Sesiones**: Uso de sesiones en memoria y cookies `HttpOnly` con soporte para credenciales en peticiones cruzadas.
-- **Autenticación y Sesiones**: Gestión de sesiones en memoria mediante un `Map` (v3).
+- **Autenticación y Sesiones**: Gestión de sesiones en memoria mediante un Map, heredada de la v3. Las sesiones se crean durante el login y se invalidan mediante logout.
 - **Autorización**: Control de acceso basado en base de datos mediante el mapeo de roles y permisos.
 - **Seguridad**: Hashing SHA256 realizado íntegramente en el cliente para proteger la integridad de las credenciales.
 
@@ -61,9 +60,9 @@ El backend incluye cabeceras HTTP específicas para permitir la conexión desde 
    - Abrir una terminal en la carpeta `sdk/v4/backend`.
    - Ejecutar el servidor con: `node main.js`.
 2. **Frontend**:
-   - Copiar el contenido de la carpeta `sdk/v4/frontend` a la carpeta `www` de Uniform Server (UniServer/Apache).
+   - Clonar el repositorio (o copiar la carpeta `frontend`) dentro del directorio `www` de Uniform Server.
    - Iniciar el servidor Apache.
-   - Acceder desde el navegador a la URL de Apache (ej. `http://localhost:80/index.html`).
+   - Acceder desde el navegador a la ruta correspondiente, por ejemplo: `http://localhost/frontend/index.html` o la URL equivalente según la ubicación elegida dentro de `www` (ej. `http://localhost/sdk-v4/frontend/index.html`).
 
 ## Pruebas de Funcionamiento
 Utilice la interfaz web para iniciar sesión. El navegador calculará el hash SHA256 y lo enviará al backend de Node.js. Una vez autenticado, se validará la sesión en memoria para realizar pruebas de autorización sobre los endpoints `/log` (permitido) y `/sayHello` (denegado), validando la arquitectura desacoplada y las políticas CORS requeridas.
