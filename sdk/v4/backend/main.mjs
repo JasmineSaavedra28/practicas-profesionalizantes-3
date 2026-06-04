@@ -239,6 +239,15 @@ const PUBLIC_ROUTES = {
 const PROTECTED_ACTIONS = ['/print', '/log', '/help', '/sayHello', '/sayBye'];
 
 function requestDispatcher(request, response) {
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
+    if (request.method === 'OPTIONS') {
+        response.writeHead(204);
+        response.end();
+        return;
+    }
+
     const host = request.headers.host || `${config.server.ip}:${config.server.port}`;
     const url = new URL(request.url, `http://${host}`);
     const path = url.pathname;

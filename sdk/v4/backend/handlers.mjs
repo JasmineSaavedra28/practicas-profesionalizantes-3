@@ -27,6 +27,28 @@ async function register_handler(request, response, context) {
     }
 }
 
+async function login_handler(request, response, context) {
+    try {
+        const input = await parseRequestBody(request);
+        const user = iniciar_sesion(context.db, input.username, input.password);
+
+        if (user) {
+            const sessionId = Math.random().toString(36).substring(2);
+            context.sessions.set(sessionId, user);
+            response.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Set-Cookie': `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Lax`
+            });
+            return response.end(JSON.stringify({ success: true, message: 'Login exitoso' }));
+        }
+        response.writeHead(401, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: 'Credenciales inválidas' }));
+    } catch (err) {
+        response.writeHead(400, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: err.message }));
+    }
+}
+
 async function logout_handler(request, response, context) {
     const sessionId = getSessionId(request);
     if (sessionId) context.sessions.delete(sessionId);
@@ -40,6 +62,13 @@ async function logout_handler(request, response, context) {
 async function action_handler(request, response, context) {
     const url = getRequestUrl(request, context.config);
     const path = url.pathname;
+
+    // Seguridad: Evitar crash si request.user no existe (sesión no válida)
+    if (!request.user) {
+        response.writeHead(401, { 'Content-Type': 'application/json' });
+        return response.end(JSON.stringify({ error: 'No autenticado', authorized: false }));
+    }
+
     const allowed = authorize(context.db, request.user.id, path);
     if (!allowed) {
         response.writeHead(403, { 'Content-Type': 'application/json' });

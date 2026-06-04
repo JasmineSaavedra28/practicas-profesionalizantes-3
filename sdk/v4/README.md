@@ -42,8 +42,8 @@ Para el correcto funcionamiento del sistema desacoplado, se deben utilizar puert
 
 ### Manejo de CORS
 El backend incluye cabeceras HTTP específicas para permitir la conexión desde el frontend:
-- `Access-Control-Allow-Origin`: Dinámico (basado en el Origin de la petición).
-- `Access-Control-Allow-Credentials`: `true` (para permitir el flujo de cookies).
+- `Access-Control-Allow-Origin`: `*`
+- `Access-Control-Allow-Methods`: `GET, POST, OPTIONS`
 - Manejo de peticiones `OPTIONS` (Pre-flight requests).
 
 ## Comportamiento requerido (consigna)
