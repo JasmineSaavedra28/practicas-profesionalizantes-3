@@ -1,66 +1,70 @@
-# SDK v4 — Sistema Integral de Gestión, Autenticación y Autorización
+# SDK v4 — Sistema Integral Desacoplado (API + Frontend)
 
-Esta versión representa la convergencia final entre la arquitectura desacoplada de la **v2** y las funcionalidades de seguridad de la **v3**.
+Esta versión implementa una refactorización arquitectónica profunda centrada en el **desacoplamiento total entre Frontend y Backend**, tal como se solicita en la Parte IV de la materia.
 
 ## Resumen (qué hace)
-- **Arquitectura v2**: Desacoplamiento total entre el servidor, el ruteador, los handlers y el modelo de datos.
-- **Seguridad v3**: Autenticación mediante sesiones en memoria, cookies `HttpOnly` y hashing SHA256 en el cliente.
-- **Gestión Completa**: ABM (Alta, Baja, Modificación) de Usuarios, Roles y Permisos.
-- **Autorización Dinámica**: Verificación de permisos basada en la base de datos (tabla `role_permission`) antes de ejecutar acciones protegidas.
-- **Patrón RPC**: Cumplimiento estricto de la consigna utilizando únicamente métodos **GET** y **POST**.
+- **Desacoplamiento**: El backend ya no sirve archivos estáticos. Funciona exclusivamente como una WebAPI.
+- **CORS**: Implementación de políticas de origen cruzado para permitir la comunicación entre diferentes servidores y puertos (Apache vs Node.js).
+- **Autenticación y Sesiones**: Uso de sesiones en memoria y cookies `HttpOnly` con soporte para credenciales en peticiones cruzadas.
+- **Autorización**: Control de acceso basado en base de datos mediante el mapeo de roles y permisos.
+- **Seguridad**: Hashing SHA256 realizado íntegramente en el cliente para proteger la integridad de las credenciales.
 
 ## Estructura del Proyecto
 
 ```text
-v4/
-├── main.js              # Punto de entrada, registro de rutas y arranque.
-├── config.js/json       # Configuración del entorno.
-├── default.html         # Interfaz de usuario (Frontend).
-├── db.sqlite3           # Base de datos persistente.
-└── src/
-    ├── db.mjs           # Conector agnóstico a SQLite.
-    ├── model.mjs        # Lógica de datos (SQL, ABM y Autorización).
-    ├── handlers.mjs     # Procesadores de peticiones (Lógica de negocio).
-    └── server.mjs       # Servidor HTTP y Dispatcher con Middleware de sesión.
+sdk/v4/
+├── backend/              # Servidor WebAPI (Node.js)
+│   ├── main.js           # Punto de entrada y registro de rutas RPC
+│   ├── server.mjs        # Lógica del servidor, dispatcher y cabeceras CORS
+│   ├── handlers.mjs      # Manejadores de la lógica de negocio (API)
+│   ├── model.mjs         # Lógica de persistencia y autorización (SQL)
+│   ├── db.mjs            # Conector agnóstico a SQLite
+│   ├── config.json       # Configuración del servidor (IP/Puerto)
+│   └── db.sqlite3        # Base de datos persistente
+└── frontend/             # Aplicación Cliente (Apache / UniServer)
+    └── index.html        # Interfaz de usuario y lógica de consumo de API
 ```
 
 ## Endpoints implementados
 
-### Sistema y Sesión
-- `POST /login`: Valida credenciales y genera cookie de sesión.
-- `POST /logout`: Invalida la sesión actual.
-- `POST /register`: Alias de creación de usuario.
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST   | `/login`            | Autentica y genera cookie de sesión |
+| POST   | `/logout`           | Invalida la sesión actual |
+| POST   | `/usuarios/crear`   | Registro de usuarios (RPC) |
+| GET    | `/usuarios/listar`  | Listado de usuarios registrados |
+| GET    | `/log`              | Acción protegida (v3 acoplada) |
+| GET    | `/sayHello`         | Acción protegida (v3 acoplada) |
 
-### Gestión de Usuarios (RPC)
-- `POST /usuarios/crear`
-- `GET /usuarios/listar`
-- `GET /usuarios/leer?id=X`
-- `POST /usuarios/actualizar`
-- `POST /usuarios/eliminar`
+## Configuración de Servidores
 
-### Roles y Permisos
-- `POST /roles/crear` | `GET /roles/listar` | `POST /roles/eliminar`
-- `POST /permisos/crear` | `GET /permisos/listar`
-- `POST /roles/asignar-permiso`: Vincula un permiso a un rol.
-- `GET /roles/permisos?role_id=X`: Lista permisos asignados.
+Para el correcto funcionamiento del sistema desacoplado, se deben utilizar puertos diferentes:
+- **Backend (WebAPI)**: Corre en Node.js (por defecto `http://localhost:3000`).
+- **Frontend (Cliente)**: Debe ser servido por Apache (Uniform Server) en un puerto distinto (ej. `http://localhost:8081`).
 
-### Acciones Protegidas (v3 legacy)
-- `GET /print`, `/log`, `/help`, `/sayHello`, `/sayBye`.
+### Manejo de CORS
+El backend incluye cabeceras HTTP específicas para permitir la conexión desde el frontend:
+- `Access-Control-Allow-Origin`: Dinámico (basado en el Origin de la petición).
+- `Access-Control-Allow-Credentials`: `true` (para permitir el flujo de cookies).
+- Manejo de peticiones `OPTIONS` (Pre-flight requests).
 
 ## Comportamiento requerido (consigna)
 
-- El servidor utiliza un **Dispatcher** que actúa como middleware.
-- Si una ruta no es pública (`/`, `/login`, `/register`), se verifica la existencia de una sesión válida en el `Map` de memoria a través de la cookie enviada.
-- Para los endpoints de acciones (`/log`, `/print`, etc.), se consulta la función `authorize` en el modelo para verificar si el `role_id` del usuario tiene permiso sobre el path solicitado.
+- Se eliminó la ruta `/` del backend; Node.js ya no genera ni sirve el HTML.
+- La aplicación cliente es independiente y consume la API mediante peticiones asíncronas (`fetch`).
+- La autorización se verifica mediante la tabla `role_permission` antes de resolver peticiones protegidas.
 
-## Seguridad
+- Las sesiones se gestionan mediante un `Map` en memoria inyectado a través del objeto `context`.
 
-- **Contraseñas**: Se reciben como hashes SHA256 calculados por el navegador. El servidor nunca conoce la contraseña en texto plano.
-- **Sesiones**: Almacenadas en un `Map` inyectado mediante el `context` a los handlers, garantizando desacoplamiento.
-- **Cookies**: Uso de `HttpOnly` para mitigar ataques XSS.
+## Instrucciones de Ejecución
 
-## Ejecución
+1. **Backend**:
+   - Abrir una terminal en la carpeta `sdk/v4/backend`.
+   - Ejecutar el servidor con: `node main.js`.
+2. **Frontend**:
+   - Copiar el contenido de la carpeta `sdk/v4/frontend` a la carpeta `www` de Uniform Server (UniServer/Apache).
+   - Iniciar el servidor Apache.
+   - Acceder desde el navegador a la URL de Apache (ej. `http://localhost:80/index.html`).
 
-1. Abrir terminal en `sdk/v4`.
-2. Ejecutar el servidor: `node main.js`
-3. Acceder a `http://localhost:3000` (o el puerto configurado en `config.json`).
+## Pruebas de Funcionamiento
+Utilice la interfaz web para iniciar sesión. El navegador calculará el hash SHA256 y lo enviará al backend de Node.js. Una vez autenticado, la cookie de sesión permitirá realizar pruebas de autorización sobre los endpoints `/log` (permitido) y `/sayHello` (denegado), validando la arquitectura desacoplada.

@@ -1,8 +1,9 @@
+// v4: El backend es puramente una WebAPI. El frontend se sirve desde Apache.
 import { load_config } from './config.js';
-import { connect_db } from './src/db.mjs';
-import { inicializar_tablas } from './src/model.mjs';
-import { create_router, start_server } from './src/server.mjs';
-import * as handlers from './src/handlers.mjs';
+import { connect_db } from './db.mjs';
+import { inicializar_tablas } from './model.mjs';
+import { create_router, start_server } from './server.mjs';
+import * as handlers from './handlers.mjs';
 
 const config = load_config();
 const db = connect_db(config.database.path);
@@ -16,7 +17,6 @@ const router = create_router();
 const sessions = new Map();
 
 // Registro de rutas (Patrón RPC - Desacoplado)
-router.set('/', handlers.default_handler);
 router.set('/register', handlers.register_handler);
 router.set('/login', handlers.login_handler);
 router.set('/logout', handlers.logout_handler);

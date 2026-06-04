@@ -28,6 +28,22 @@ function getSessionId(request)
 
 async function request_dispatcher(request, response, router, context)
 {
+    // v4: Configuración de CORS para permitir acceso desde el Frontend (Apache/UniServer)
+    // Para permitir el envío de Cookies (credentials) entre puertos, el Origin no puede ser '*'
+    const origin = request.headers.origin || '*';
+    response.setHeader('Access-Control-Allow-Origin', origin);
+    response.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Cookie');
+
+    if (request.method === 'OPTIONS')
+    {
+        response.writeHead(204);
+        response.end();
+        return;
+    }
+
     const url = getRequestUrl(request, context.config);
     const path = url.pathname;
     const handler = router.get(path);
@@ -74,4 +90,4 @@ function start_server(config, router, context)
     server.listen(config.server.port, config.server.ip);
 }
 
-export { create_router, start_server, getRequestUrl };
+export { create_router, start_server, getRequestUrl, getSessionId };
