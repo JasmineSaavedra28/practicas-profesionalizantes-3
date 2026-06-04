@@ -21,27 +21,6 @@ router.set('/register', handlers.register_handler);
 router.set('/login', handlers.login_handler);
 router.set('/logout', handlers.logout_handler);
 
-// Rutas de Usuarios
-router.set('/usuarios/crear', handlers.crear_usuario_handler);
-router.set('/usuarios/leer', handlers.leer_usuario_handler);
-router.set('/usuarios/listar', handlers.listar_usuarios_handler);
-router.set('/usuarios/actualizar', handlers.actualizar_usuario_handler);
-router.set('/usuarios/eliminar', handlers.eliminar_usuario_handler);
-
-// Rutas de Roles y Permisos
-router.set('/roles/crear', handlers.crear_rol_handler);
-router.set('/roles/listar', handlers.listar_roles_handler);
-router.set('/roles/actualizar', handlers.actualizar_rol_handler);
-router.set('/roles/eliminar', handlers.eliminar_rol_handler);
-
-router.set('/permisos/crear', handlers.crear_permiso_handler);
-router.set('/permisos/listar', handlers.listar_permisos_handler);
-router.set('/permisos/actualizar', handlers.actualizar_permiso_handler);
-router.set('/permisos/eliminar', handlers.eliminar_permiso_handler);
-
-router.set('/roles/asignar-permiso', handlers.asignar_permiso_rol_handler);
-router.set('/roles/permisos', handlers.obtener_permisos_rol_handler);
-
 // v4: Acoplamiento de acciones protegidas de la v3
 router.set('/print', handlers.action_handler);
 router.set('/log', handlers.action_handler);

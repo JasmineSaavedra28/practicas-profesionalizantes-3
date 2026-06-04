@@ -19,7 +19,7 @@ sdk/v4/
 │   ├── handlers.mjs      # Manejadores de la lógica de negocio (API)
 │   ├── model.mjs         # Lógica de persistencia y autorización (SQL)
 │   ├── db.mjs            # Conector agnóstico a SQLite
-│   ├── config.json       # Configuración del servidor (IP/Puerto)
+│   ├── config.json       # Parámetros de configuración
 │   └── db.sqlite3        # Base de datos persistente
 └── frontend/             # Aplicación Cliente (Apache / UniServer)
     └── index.html        # Interfaz de usuario y lógica de consumo de API
@@ -31,21 +31,8 @@ sdk/v4/
 |--------|------|-------------|
 | POST   | `/login`              | Autentica y genera cookie de sesión |
 | POST   | `/logout`             | Invalida la sesión actual |
-| POST   | `/register`           | Registro de usuarios (alias de crear) |
-| POST   | `/usuarios/crear`     | Crear nuevo usuario |
-| GET    | `/usuarios/leer`      | Obtener un usuario por ID |
-| GET    | `/usuarios/listar`    | Listado de todos los usuarios |
-| POST   | `/usuarios/actualizar`| Actualizar datos de usuario |
-| POST   | `/usuarios/eliminar`  | Eliminar usuario |
-| POST   | `/roles/crear`        | Crear nuevo rol |
-| GET    | `/roles/listar`       | Listado de roles |
-| POST   | `/roles/actualizar`   | Actualizar rol |
-| POST   | `/roles/eliminar`     | Eliminar rol |
-| POST   | `/permisos/crear`     | Crear nuevo permiso |
-| GET    | `/permisos/listar`    | Listado de permisos |
-| POST   | `/roles/asignar-permiso` | Asignar un permiso a un rol |
-| GET    | `/roles/permisos`     | Ver permisos de un rol específico |
-| GET    | `/print`, `/log`, `/help`, `/sayHello`, `/sayBye` | Acciones protegidas (v3) |
+| POST   | `/register`           | Registro de usuarios |
+| GET    | `/print`, `/log`, `/help`, `/sayHello`, `/sayBye` | Acciones protegidas (heredadas de v3) |
 
 ## Configuración de Servidores
 
