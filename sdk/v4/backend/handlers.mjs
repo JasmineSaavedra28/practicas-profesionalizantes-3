@@ -5,7 +5,18 @@ import {
     crear_usuario,
     leer_usuario,
     listar_usuarios,
+    actualizar_usuario,
     eliminar_usuario,
+    crear_rol,
+    listar_roles,
+    actualizar_rol,
+    eliminar_rol,
+    crear_permiso,
+    listar_permisos,
+    actualizar_permiso,
+    eliminar_permiso,
+    asignar_permiso_a_rol,
+    obtener_permisos_rol,
     authorize
 } from './model.mjs';
 
@@ -16,6 +27,10 @@ function parseRequestBody(request) {
         request.on('end', () => resolve(parse(body)));
         request.on('error', reject);
     });
+}
+
+async function register_handler(request, response, context) {
+    return await crear_usuario_handler(request, response, context);
 }
 
 async function login_handler(request, response, context) {
@@ -58,23 +73,154 @@ async function action_handler(request, response, context) {
 }
 
 async function crear_usuario_handler(request, response, context) {
+    try {
+        const input = await parseRequestBody(request);
+        const output = crear_usuario(context.db, input.username, input.password, input.email, input.role_id);
+        response.writeHead(201, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(output));
+    } catch (err) {
+        response.writeHead(400, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: err.message }));
+    }
+}
+
+async function listar_usuarios_handler(request, response, context) {
+    try {
+        const output = listar_usuarios(context.db);
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(output));
+    } catch (err) {
+        response.writeHead(500, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: err.message }));
+    }
+}
+
+async function leer_usuario_handler(request, response, context) {
+    try {
+        const url = getRequestUrl(request, context.config);
+        const id = url.searchParams.get('id');
+        const output = leer_usuario(context.db, id);
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(output));
+    } catch (err) {
+        response.writeHead(404, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: err.message }));
+    }
+}
+
+async function actualizar_usuario_handler(request, response, context) {
+    try {
+        const input = await parseRequestBody(request);
+        const output = actualizar_usuario(context.db, input.id, input.username, input.password, input.email, input.role_id);
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(output));
+    } catch (err) {
+        response.writeHead(400, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: err.message }));
+    }
+}
+
+async function eliminar_usuario_handler(request, response, context) {
+    try {
+        const input = await parseRequestBody(request);
+        const output = eliminar_usuario(context.db, input.id);
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(output));
+    } catch (err) {
+        response.writeHead(400, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ error: err.message }));
+    }
+}
+
+// --- Handlers de Roles ---
+async function crear_rol_handler(request, response, context) {
     const input = await parseRequestBody(request);
-    const output = crear_usuario(context.db, input.username, input.password, input.email, input.role_id);
+    const output = crear_rol(context.db, input.name, input.description);
     response.writeHead(201, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(output));
 }
 
-async function listar_usuarios_handler(request, response, context) {
-    const output = listar_usuarios(context.db);
+async function listar_roles_handler(request, response, context) {
+    const output = listar_roles(context.db);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function actualizar_rol_handler(request, response, context) {
+    const input = await parseRequestBody(request);
+    const output = actualizar_rol(context.db, input.id, input.name, input.description);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function eliminar_rol_handler(request, response, context) {
+    const input = await parseRequestBody(request);
+    const output = eliminar_rol(context.db, input.id);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+// --- Handlers de Permisos ---
+async function crear_permiso_handler(request, response, context) {
+    const input = await parseRequestBody(request);
+    const output = crear_permiso(context.db, input.name, input.description);
+    response.writeHead(201, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function listar_permisos_handler(request, response, context) {
+    const output = listar_permisos(context.db);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function actualizar_permiso_handler(request, response, context) {
+    const input = await parseRequestBody(request);
+    const output = actualizar_permiso(context.db, input.id, input.name, input.description);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function eliminar_permiso_handler(request, response, context) {
+    const input = await parseRequestBody(request);
+    const output = eliminar_permiso(context.db, input.id);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function asignar_permiso_rol_handler(request, response, context) {
+    const input = await parseRequestBody(request);
+    const output = asignar_permiso_a_rol(context.db, input.role_id, input.permission_id);
+    response.writeHead(201, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function obtener_permisos_rol_handler(request, response, context) {
+    const url = getRequestUrl(request, context.config);
+    const role_id = url.searchParams.get('role_id');
+    const output = obtener_permisos_rol(context.db, role_id);
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(output));
 }
 
 export { 
+    register_handler,
     login_handler, 
     logout_handler, 
     action_handler, 
     crear_usuario_handler, 
+    leer_usuario_handler,
     listar_usuarios_handler,
-    // ... exportar el resto de los ABM de model.mjs aquí
+    actualizar_usuario_handler,
+    eliminar_usuario_handler,
+    crear_rol_handler,
+    listar_roles_handler,
+    actualizar_rol_handler,
+    eliminar_rol_handler,
+    crear_permiso_handler,
+    listar_permisos_handler,
+    actualizar_permiso_handler,
+    eliminar_permiso_handler,
+    asignar_permiso_rol_handler,
+    obtener_permisos_rol_handler
 };
