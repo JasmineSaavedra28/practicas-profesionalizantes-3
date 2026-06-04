@@ -31,14 +31,14 @@ sdk/v4/
 |--------|------|-------------|
 | POST   | `/login`              | Autentica y crea sesión en memoria |
 | POST   | `/logout`             | Invalida la sesión actual |
-| POST   | `/register`           | Registro de usuarios |
+| POST   | `/register`           | Registro de nuevos usuarios |
 | GET    | `/print`, `/log`, `/help`, `/sayHello`, `/sayBye` | Acciones protegidas (heredadas de v3) |
 
 ## Configuración de Servidores
 
 Para el correcto funcionamiento del sistema desacoplado, se deben utilizar puertos diferentes:
 - **Backend (WebAPI)**: Corre en Node.js (por defecto `http://localhost:3000`).
-- **Frontend (Cliente)**: Debe ser servido por Apache (Uniform Server) en un puerto distinto (ej. `http://localhost:8081`).
+- **Frontend (Cliente)**: Debe ser servido por un servidor web estático (por ejemplo Apache mediante Uniform Server) en un puerto diferente al backend (ej. `http://localhost:8081`).
 
 ### Manejo de CORS
 El backend incluye cabeceras HTTP específicas para permitir la conexión desde el frontend:
@@ -65,4 +65,4 @@ El backend incluye cabeceras HTTP específicas para permitir la conexión desde 
    - Acceder desde el navegador a la ruta correspondiente, por ejemplo: `http://localhost/frontend/index.html` o la URL equivalente según la ubicación elegida dentro de `www` (ej. `http://localhost/sdk-v4/frontend/index.html`).
 
 ## Pruebas de Funcionamiento
-Utilice la interfaz web para iniciar sesión. El navegador calculará el hash SHA256 y lo enviará al backend de Node.js. Una vez autenticado, se validará la sesión en memoria para realizar pruebas de autorización sobre los endpoints `/log` (permitido) y `/sayHello` (denegado), validando la arquitectura desacoplada y las políticas CORS requeridas.
+Utilice la interfaz web para iniciar sesión. El navegador calculará el hash SHA256 y lo enviará al backend de Node.js. Una vez autenticado, se validará la sesión en memoria para realizar pruebas de autorización sobre los endpoints `/log` (permitido) y `/sayHello` (denegado), validando el funcionamiento de la arquitectura desacoplada, el mecanismo de sesión y las políticas CORS implementadas.
