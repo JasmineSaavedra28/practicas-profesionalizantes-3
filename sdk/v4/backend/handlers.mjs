@@ -1,4 +1,3 @@
-import { parse } from 'node:querystring';
 import { getRequestUrl } from './server.mjs';
 import {
     iniciar_sesion,
@@ -10,7 +9,13 @@ function parseRequestBody(request) {
     return new Promise((resolve, reject) => {
         let body = '';
         request.on('data', chunk => body += chunk.toString());
-        request.on('end', () => resolve(parse(body)));
+        request.on('end', () => {
+            try {
+                resolve(JSON.parse(body || '{}'));
+            } catch (err) {
+                reject(err);
+            }
+        });
         request.on('error', reject);
     });
 }
@@ -24,9 +29,14 @@ function getAuthHeaders(request) {
 }
 
 async function register_handler(request, response, context) {
+    if (request.method !== 'POST') {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        return response.end(JSON.stringify({ error: 'Método no permitido. Usa POST.' }));
+    }
+
     try {
         const input = await parseRequestBody(request);
-        const output = crear_usuario(context.db, input.username, input.password, input.email || null);
+        const output = crear_usuario(context.db, input.username, input.password);
         response.writeHead(201, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ success: true, user: output }));
     } catch (err) {
@@ -64,6 +74,11 @@ async function logout_handler(request, response, context) {
 }
 
 async function action_handler(request, response, context) {
+    if (request.method !== 'POST') {
+        response.writeHead(405, { 'Content-Type': 'application/json' });
+        return response.end(JSON.stringify({ error: 'Método no permitido. Usa POST.' }));
+    }
+
     const url = getRequestUrl(request, context.config);
     const path = url.pathname;
 
