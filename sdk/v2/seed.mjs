@@ -4,7 +4,7 @@ import {
     crear_rol,
     crear_permiso,
     asignar_permiso_a_rol
-} from './src/usecase.mjs';
+} from './src/model.mjs';
 import { load_config } from './config.js';
 
 const config = load_config();

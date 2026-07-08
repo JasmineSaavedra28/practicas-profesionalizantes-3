@@ -18,6 +18,7 @@ Proyecto de `sdk/v2` para el trabajo práctico de autenticación y permisos. Inc
 - El router y dispatcher están en `src/server.mjs`
 - El servidor se inicia desde `main.js`
 - La interfaz web se sirve desde `public/default.html`
+- El script de datos `seed.mjs` ahora utiliza `src/model.mjs` directamente.
 
 ## Endpoints disponibles
 
@@ -59,7 +60,7 @@ Luego abrir `http://127.0.0.1:3001` en el navegador.
 - **Patrón RPC**: Se utilizan exclusivamente métodos **GET** y **POST** para cumplir con el esquema de la materia.
 - **Configuración Dinámica**: El servidor resuelve la URL base mediante `config.json` y headers de petición, eliminando URLs estáticas en el código.
 - **Inyección de Dependencias**: El `context` (db y config) se inyecta en los handlers en tiempo de despacho.
-- **Estructura Limpia**: Se eliminó `usecase.mjs` consolidando la lógica en el modelo para evitar redundancias.
+- **Estructura Limpia**: Se eliminó `src/usecase.mjs` y el script `seed.mjs` ahora se apoya directamente en `src/model.mjs`.
 
 ## Comandos útiles
 
@@ -85,6 +86,7 @@ v2/
 ├── package-lock.json
 ├── .gitignore
 ├── db.sqlite3
+├── seed.mjs
 ├── public/default.html
 └── src/
     ├── db.mjs
