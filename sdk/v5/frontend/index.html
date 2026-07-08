@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Sistema de Autenticación y Autorización</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background: #f1f5f9;
+				min-height: 100vh;
+				color: #1f2937;
+			}
+
+			.w3-top {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				z-index: 1000;
+			}
+
+			.w3-card {
+				box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+			}
+
+			.w3-theme {
+				background: #1e3a8a;
+				color: #fff;
+			}
+
+			.w3-flex-bar {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				padding: 0 20px;
+				height: 54px;
+			}
+
+			.institutional-logo {
+				display: flex;
+				align-items: center;
+				padding: 6px 10px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.2);
+				border: 1px solid rgba(255, 255, 255, 0.35);
+			}
+
+			.logo-img {
+				width: 44px;
+				height: 44px;
+				object-fit: contain;
+				border-radius: 14px;
+				background: #fff;
+				padding: 4px;
+				box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+			}
+
+			.admin-brand {
+				font-size: 1rem;
+				font-weight: 800;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				color: #fff;
+			}
+
+			.sidebar-toggle {
+				font-size: 1.1rem;
+				cursor: pointer;
+				color: #fff;
+			}
+
+			.search-box {
+				flex: 1;
+				position: relative;
+				max-width: 420px;
+			}
+
+			.search-icon {
+				position: absolute;
+				left: 14px;
+				top: 50%;
+				transform: translateY(-50%);
+				color: rgba(255, 255, 255, 0.72);
+			}
+
+			.search-input {
+				width: 100%;
+				padding: 11px 16px 11px 40px;
+				border-radius: 999px;
+				border: 1px solid rgba(255, 255, 255, 0.32);
+				background: rgba(255, 255, 255, 0.12);
+				color: #fff;
+			}
+
+			.search-input::placeholder {
+				color: rgba(255, 255, 255, 0.7);
+			}
+
+			.w3-input,
+			.w3-button,
+			.w3-select,
+			textarea {
+				font-family: inherit;
+			}
+
+			.w3-input {
+				width: 100%;
+				padding: 12px 14px;
+				border: 1px solid #d1d5db;
+				border-radius: 10px;
+				background: #fff;
+				color: #1f2937;
+			}
+
+			.w3-button {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 11px 18px;
+				border: none;
+				border-radius: 999px;
+				background: #1e3a8a;
+				color: #fff;
+				font-weight: 700;
+				cursor: pointer;
+				transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+			}
+
+			.w3-button:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 14px 24px rgba(15, 23, 42, 0.12);
+			}
+
+			.w3-primary {
+				background: #2563eb;
+			}
+
+			.w3-secondary {
+				background: #1d4ed8;
+			}
+
+			.w3-warning {
+				background: #f59e0b;
+			}
+
+			.w3-red {
+				background: #ef4444;
+			}
+
+			.w3-white {
+				background: #fff;
+			}
+
+			.w3-round {
+				border-radius: 18px;
+			}
+
+			.w3-border {
+				border: 1px solid rgba(148, 163, 184, 0.25);
+			}
+
+			.w3-padding {
+				padding: 22px;
+			}
+
+			.w3-margin-bottom {
+				margin-bottom: 20px;
+			}
+
+			.w3-opacity {
+				opacity: 0.75;
+			}
+
+			.w3-right {
+				margin-left: auto;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.sidebar-link {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				padding: 14px 18px;
+				color: #334155;
+				text-decoration: none;
+				font-size: 0.95rem;
+				transition: background 0.18s ease, color 0.18s ease;
+			}
+
+			.sidebar-link:hover {
+				background: #eff6ff;
+				color: #1d4ed8;
+			}
+
+			.sidebar-link.active {
+				background: #dbeafe;
+				color: #1e40af;
+				font-weight: 700;
+				border-left: 3px solid #2563eb;
+				padding-left: 15px;
+			}
+
+			.sidebar-icon {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 24px;
+				height: 24px;
+				border-radius: 8px;
+				background: rgba(59, 130, 246, 0.12);
+				font-size: 0.85rem;
+			}
+
+			.sidebar-section {
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				color: #64748b;
+				padding: 12px 18px;
+			}
+
+			.w3-sidebar {
+				position: fixed;
+				top: 54px;
+				left: 0;
+				width: 230px;
+				height: calc(100vh - 54px);
+				background: #fff;
+				border-right: 1px solid rgba(148, 163, 184, 0.22);
+				overflow-y: auto;
+				padding-top: 18px;
+			}
+
+			.w3-main {
+				margin-left: 230px;
+				margin-top: 54px;
+				padding: 24px 30px;
+			}
+
+			.main-content {
+				max-width: 1180px;
+				margin: 0 auto;
+			}
+
+			.panel-section {
+				margin-bottom: 22px;
+			}
+
+			.section-title {
+				font-size: 1.15rem;
+				font-weight: 700;
+				margin-bottom: 18px;
+			}
+
+			.top-chip {
+				padding: 10px 16px;
+				border-radius: 999px;
+				background: rgba(37, 99, 235, 0.14);
+				color: #1d4ed8;
+				font-weight: 700;
+				font-size: 0.9rem;
+			}
+
+			.status-box {
+				background: #f8fafc;
+				border-left: 4px solid #667eea;
+				padding: 16px;
+				border-radius: 12px;
+				margin-top: 15px;
+			}
+
+			.status-active {
+				border-left-color: #48bb78;
+			}
+
+			.status-inactive {
+				border-left-color: #cbd5e0;
+			}
+
+			.status-text {
+				color: #334155;
+				font-weight: 700;
+				margin-bottom: 6px;
+			}
+
+			.status-username {
+				color: #1d4ed8;
+				font-size: 0.95rem;
+			}
+
+			.result-box {
+				background: #f8fafc;
+				border: 1px solid #cbd5e0;
+				border-radius: 12px;
+				padding: 16px;
+				margin-top: 15px;
+				max-height: 220px;
+				overflow-y: auto;
+				font-family: 'Courier New', monospace;
+				font-size: 0.92rem;
+			}
+
+			.result-success {
+				border-color: #34d399;
+				background: #ecfdf5;
+			}
+
+			.result-error {
+				border-color: #fca5a5;
+				background: #fff1f2;
+			}
+
+			.result-info {
+				border-color: #93c5fd;
+				background: #eff6ff;
+			}
+
+			.result-text {
+				color: #334155;
+				line-height: 1.6;
+			}
+
+			.result-title {
+				font-weight: 700;
+				color: #1e293b;
+				margin-bottom: 10px;
+			}
+
+			.endpoint-buttons {
+				display: grid;
+				grid-template-columns: 1fr;
+				gap: 12px;
+				margin-top: 14px;
+			}
+
+			@media (min-width: 880px) {
+				.endpoint-buttons {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
+
+			.info-box {
+				background: #eff6ff;
+				border-left: 4px solid #2563eb;
+				padding: 14px;
+				border-radius: 12px;
+				font-size: 0.95rem;
+				color: #1e40af;
+				margin-bottom: 18px;
+			}
+
+			.info-box strong {
+				display: block;
+				margin-bottom: 6px;
+			}
+
+			.top-actions {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.top-status {
+				color: #e2e8f0;
+				font-size: 0.95rem;
+			}
+
+			.w3-button.top-logout,
+			.w3-button.top-login {
+				background: #fff;
+				color: #1e3a8a;
+				border: 1px solid rgba(255, 255, 255, 0.55);
+			}
+
+			.w3-button.top-login:hover,
+			.w3-button.top-logout:hover {
+				background: rgba(255, 255, 255, 0.92);
+			}
+
+			.sidebar-brand {
+				padding: 0 18px 18px;
+				border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+				margin-bottom: 12px;
+			}
+
+			.sidebar-logo {
+				font-size: 1.05rem;
+				font-weight: 800;
+				color: #1d4ed8;
+			}
+
+			.sidebar-sponsor {
+				font-size: 0.82rem;
+				color: #64748b;
+				margin-top: 4px;
+			}
+
+			.wc-auth-card {
+				border-radius: 18px;
+				border: 1px solid rgba(148, 163, 184, 0.22);
+				box-shadow: 0 16px 28px rgba(15, 23, 42, 0.08);
+			}
+
+			.wc-auth-header {
+				text-align: center;
+				margin-bottom: 20px;
+			}
+
+			.wc-auth-header h2 {
+				font-size: 1.3rem;
+				color: #1e40af;
+				margin-bottom: 8px;
+			}
+
+			.wc-auth-header p {
+				color: #475569;
+				font-size: 0.95rem;
+			}
+
+			.wc-auth-field {
+				margin-bottom: 16px;
+			}
+
+			.wc-auth-action {
+				width: 100%;
+			}
+
+			.wc-auth-footer {
+				font-size: 0.88rem;
+				color: #64748b;
+				text-align: center;
+				margin-top: 16px;
+			}
+
+			@media (max-width: 920px) {
+				.w3-main {
+					margin-left: 0;
+				}
+
+				.w3-sidebar {
+					position: static;
+					width: 100%;
+					height: auto;
+				}
+
+				.w3-row,
+				.w3-row-padding {
+					grid-template-columns: 1fr;
+				}
+
+				.search-box {
+					max-width: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="w3-top w3-card w3-theme">
+			<div class="w3-flex-bar">
+				<div class="institutional-logo">
+					<img src="../isft.png" alt="Logo ISFT 151" class="logo-img">
+				</div>
+				<div class="admin-brand">W3Admin SDK v5</div>
+				<div class="search-box">
+					<span class="search-icon">🔍</span>
+					<input type="text" class="search-input" placeholder="Buscar...">
+				</div>
+				<div class="w3-right top-actions">
+					<span class="top-chip" id="topSessionLabel">Sin sesión</span>
+					<button class="w3-button top-login" id="topLogin">Iniciar Sesión</button>
+					<button class="w3-button top-logout" id="topLogout" disabled>Cerrar Sesión</button>
+				</div>
+			</div>
+		</div>
+
+		<nav class="w3-sidebar w3-white w3-border-right">
+			<div class="sidebar-brand">
+				<div class="sidebar-logo">ISFT 151</div>
+				<div class="sidebar-sponsor">W3Admin / Gestión</div>
+			</div>
+			<div class="sidebar-section">MAIN NAVIGATION</div>
+			<a href="#dashboard" class="sidebar-link active"><span class="sidebar-icon">🏠</span> Dashboard</a>
+			<a href="#authentication" class="sidebar-link"><span class="sidebar-icon">🔐</span> Login / Registro</a>
+			<a href="#users-groups" class="sidebar-link"><span class="sidebar-icon">👥</span> Gestión de usuarios y grupos</a>
+			<a href="#access-control" class="sidebar-link"><span class="sidebar-icon">🛡️</span> Control de accesos</a>
+			<div class="sidebar-section">LABELS</div>
+			<a href="#dashboard" class="sidebar-link"><span class="sidebar-icon">⚠️</span> Importante</a>
+			<a href="#dashboard" class="sidebar-link"><span class="sidebar-icon">✅</span> Advertencia</a>
+			<a href="#dashboard" class="sidebar-link"><span class="sidebar-icon">ℹ️</span> Información</a>
+		</nav>
+		<div class="w3-main">
+			<div class="main-content">
+				<section id="dashboard" class="panel-section">
+					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+						<div class="w3-right top-chip">Autenticación & Autorización</div>
+						<h1 class="section-title">Dashboard de Autenticación</h1>
+						<p class="w3-opacity">Interfaz W3Admin adaptada para el SDK v5, con login, registro y pruebas de permisos.</p>
+				<div class="action-buttons">
+					<button class="w3-button w3-white w3-border" id="btnGoAuthentication">Ir a Login / Registro</button>
+				</div>
+
+				<section id="authentication" class="panel-section">
+					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+						<h2 class="section-title">Autenticación</h2>
+						<div class="w3-row-padding">
+							<div class="w3-col m6">
+								<wc-login-form-view></wc-login-form-view>
+							</div>
+							<div class="w3-col m6">
+								<wc-register-form-view></wc-register-form-view>
+							</div>
+						</div>
+						<div id="statusBox" class="status-box hidden">
+							<div class="status-text">Estado de sesión</div>
+							<div class="status-username" id="statusUsername">Sin sesión activa</div>
+						</div>
+					</div>
+				</section>
+
+				<section id="access-control" class="panel-section">
+					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+						<h2 class="section-title">Control de Acceso</h2>
+						<div class="info-box">
+							<strong>Grupo "prueba" tiene acceso a:</strong>
+							✅ /print, /log, /help<br>
+							❌ /sayHello, /sayBye
+						</div>
+						<div class="endpoint-buttons">
+							<button class="w3-button w3-primary" id="btnHelp" disabled>Acceso /help</button>
+							<button class="w3-button w3-secondary" id="btnLog" disabled>Acceso /log</button>
+							<button class="w3-button w3-red" id="btnSayHello" disabled>Acceso /sayHello</button>
+						</div>
+						<div id="resultBox" class="result-box hidden">
+							<div class="result-title" id="resultTitle">Resultado</div>
+							<div class="result-text" id="resultContent"></div>
+						</div>
+					</div>
+				</section>
+
+				<section id="users-groups" class="panel-section">
+					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+						<h2 class="section-title">Usuarios y Grupos</h2>
+						<p class="w3-opacity">Acciones de control con usuarios, grupos y permisos para la API de `sdk/v5`.</p>
+						<div class="info-box">
+							<strong>Funcionalidad incluida:</strong>
+							<ul>
+								<li>Login / Registro con RPCWebAPIFetch</li>
+								<li>Cierre de sesión desde el toolbar</li>
+								<li>Pruebas de endpoints protegidos</li>
+							</ul>
+						</div>
+					</div>
+				</section>
+
+			</div>
+		</div>
+
+		<script>
+		const API_BASE = 'http://localhost:3000';
+		let currentSession = null;
+
+		class UnauthorizedError extends Error {
+			constructor(message) {
+				super(message);
+				this.name = 'UnauthorizedError';
+			}
+		}
+
+		async function RPCWebAPIFetch(name, content = {}) {
+			const response = await fetch(`${API_BASE}/${name}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(currentSession?.apiKey ? {
+						'x-user-id': currentSession.username,
+						'x-api-key': currentSession.apiKey
+					} : {})
+				},
+				body: JSON.stringify(content)
+			});
+
+			const text = await response.text();
+			let data = {};
+			try {
+				data = text ? JSON.parse(text) : {};
+			} catch {
+				throw new Error('Respuesta JSON inválida del servidor');
+			}
+
+			if (response.ok) {
+				return data;
+			}
+
+			const message = data.error || `HTTP ${response.status}`;
+			if (response.status === 401 || response.status === 403) {
+				throw new UnauthorizedError(message);
+			}
+			throw new Error(message);
+		}
+
+		function clearSession() {
+			currentSession = null;
+			updateUI(false);
+		}
+
+		function handleRpcError(error) {
+			if (error instanceof UnauthorizedError) {
+				clearSession();
+				showLoginScreen();
+				showResult('⚠️ No autorizado', error.message, 'error');
+				return;
+			}
+			showResult('❌ Error', error.message || String(error), 'error');
+		}
+
+		function showLoginScreen() {
+			const authSection = document.getElementById('authentication');
+			if (authSection) {
+				authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+			const navLinks = document.querySelectorAll('.sidebar-link');
+			navLinks.forEach(link => {
+				if (link.getAttribute('href') === '#authentication') {
+					link.classList.add('active');
+				} else {
+					link.classList.remove('active');
+				}
+			});
+		}
+
+		function showResult(title, content, type = 'info') {
+			elements.resultBox.style.display = 'block';
+			elements.resultTitle.textContent = title;
+			elements.resultContent.textContent = typeof content === 'string'
+				? content
+				: JSON.stringify(content, null, 2);
+			elements.resultBox.className = 'result-box result-' + type;
+		}
+
+		function updateUI(hasSession) {
+			const isActive = Boolean(hasSession && currentSession);
+			elements.topLogout.disabled = !isActive;
+			elements.btnHelp.disabled = !isActive;
+			elements.btnLog.disabled = !isActive;
+			elements.btnSayHello.disabled = !isActive;
+			elements.statusBox.style.display = isActive ? 'block' : 'none';
+
+			if (isActive) {
+				elements.statusBox.classList.add('status-active');
+				elements.statusBox.classList.remove('status-inactive');
+				elements.statusUsername.textContent = `Sesión activa: ${currentSession.username}`;
+				elements.topSessionLabel.textContent = `Usuario: ${currentSession.username}`;
+					elements.topLogin.style.display = 'none';
+				} else {
+					elements.topSessionLabel.textContent = 'Sin sesión activa';
+					elements.statusBox.classList.remove('status-active');
+					elements.statusBox.classList.add('status-inactive');
+					elements.statusUsername.textContent = 'Sin sesión activa';
+					elements.topLogin.style.display = 'inline-flex';
+			if (registerForm) registerForm.toggleAttribute('disabled', isActive);
+		}
+
+		function validateCredentials(username, password) {
+			if (!username || !password) {
+				throw new Error('Completa usuario y contraseña');
+			}
+		}
+
+		async function calcularhashsha256(mensaje) {
+			const msgBuffer = new TextEncoder().encode(mensaje);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+		}
+
+		class WCLoginFormView extends HTMLElement {
+			connectedCallback() {
+				this.innerHTML = `
+					<div class="wc-auth-card w3-white w3-padding-large">
+						<div class="wc-auth-header">
+							<h2>INICIO DE SESIÓN</h2>
+							<p>Accede a los endpoints protegidos de la API.</p>
+						</div>
+						<div class="wc-auth-field">
+							<input type="text" id="loginUsername" class="w3-input w3-round" placeholder="Usuario">
+						</div>
+						<div class="wc-auth-field">
+							<input type="password" id="loginPassword" class="w3-input w3-round" placeholder="Contraseña">
+						</div>
+						<button id="loginSubmit" class="w3-button w3-primary w3-round w3-block wc-auth-action">Iniciar Sesión</button>
+						<div class="wc-auth-footer">¿No tienes cuenta? Regístrate en el panel de la derecha.</div>
+					</div>
+				`;
+				this.querySelector('#loginSubmit').addEventListener('click', () => this.onSubmit());
+			}
+
+			onSubmit() {
+				const username = this.querySelector('#loginUsername').value.trim();
+				const password = this.querySelector('#loginPassword').value;
+				this.dispatchEvent(new CustomEvent('login', {
+					detail: { username, password },
+					bubbles: true,
+					composed: true
+				}));
+			}
+
+			static get observedAttributes() {
+				return ['disabled'];
+			}
+
+			attributeChangedCallback(name) {
+				if (name === 'disabled') {
+					const disabled = this.hasAttribute('disabled');
+					this.querySelectorAll('input, button').forEach(el => el.disabled = disabled);
+				}
+			}
+		}
+
+		class WCRegisterFormView extends HTMLElement {
+			connectedCallback() {
+				this.innerHTML = `
+					<div class="wc-auth-card w3-white w3-padding-large">
+						<div class="wc-auth-header">
+							<h2>REGISTRO</h2>
+							<p>Crea un usuario para acceder a las pruebas de autorización.</p>
+						</div>
+						<div class="wc-auth-field">
+							<input type="text" id="registerUsername" class="w3-input w3-round" placeholder="Usuario">
+						</div>
+						<div class="wc-auth-field">
+							<input type="password" id="registerPassword" class="w3-input w3-round" placeholder="Contraseña">
+						</div>
+						<button id="registerSubmit" class="w3-button w3-secondary w3-round w3-block wc-auth-action">Registrarse</button>
+						<div class="wc-auth-footer">El registro no requiere datos personales adicionales.</div>
+					</div>
+				`;
+				this.querySelector('#registerSubmit').addEventListener('click', () => this.onSubmit());
+			}
+
+			onSubmit() {
+				const username = this.querySelector('#registerUsername').value.trim();
+				const password = this.querySelector('#registerPassword').value;
+				this.dispatchEvent(new CustomEvent('register', {
+					detail: { username, password },
+					bubbles: true,
+					composed: true
+				}));
+			}
+
+			static get observedAttributes() {
+				return ['disabled'];
+			}
+
+			attributeChangedCallback(name) {
+				if (name === 'disabled') {
+					const disabled = this.hasAttribute('disabled');
+					this.querySelectorAll('input, button').forEach(el => el.disabled = disabled);
+				}
+			}
+		}
+
+		customElements.define('wc-login-form-view', WCLoginFormView);
+		customElements.define('wc-register-form-view', WCRegisterFormView);
+
+		const elements = {
+				topLogin: document.getElementById('topLogin'),
+				topLogout: document.getElementById('topLogout'),
+				topSessionLabel: document.getElementById('topSessionLabel'),
+				btnGoAuthentication: document.getElementById('btnGoAuthentication'),
+
+				statusBox: document.getElementById('statusBox'),
+				statusUsername: document.getElementById('statusUsername'),
+				resultBox: document.getElementById('resultBox'),
+				resultTitle: document.getElementById('resultTitle'),
+				resultContent: document.getElementById('resultContent'),
+				btnHelp: document.getElementById('btnHelp'),
+				btnLog: document.getElementById('btnLog'),
+				btnSayHello: document.getElementById('btnSayHello')
+			};
+
+			function initializeEventListeners() {
+				document.querySelector('wc-login-form-view').addEventListener('login', async event => {
+					const { username, password } = event.detail;
+					try {
+						validateCredentials(username, password);
+						const passwordHasheada = await calcularhashsha256(password);
+						const data = await RPCWebAPIFetch('login', { username, password: passwordHasheada });
+						currentSession = { username: data.userId || data.username, apiKey: data.apiKey };
+						updateUI(true);
+						showResult('✅ Login exitoso', `Bienvenido ${currentSession.username}`, 'success');
+					} catch (error) {
+						handleRpcError(error);
+					}
+				});
+
+				document.querySelector('wc-register-form-view').addEventListener('register', async event => {
+					const { username, password } = event.detail;
+					try {
+						validateCredentials(username, password);
+						const passwordHasheada = await calcularhashsha256(password);
+						const data = await RPCWebAPIFetch('register', { username, password: passwordHasheada });
+						showResult('✅ Registro completo', `Usuario ${data.user.username} creado correctamente`, 'success');
+					} catch (error) {
+						handleRpcError(error);
+					}
+				});
+
+				elements.topLogin.addEventListener('click', () => {
+					showLoginScreen();
+				});
+
+				elements.btnGoAuthentication.addEventListener('click', () => {
+					showLoginScreen();
+
+			elements.topLogout.addEventListener('click', async () => {
+				try {
+					await RPCWebAPIFetch('logout', {});
+				} catch (error) {
+					handleRpcError(error);
+				} finally {
+					clearSession();
+					showLoginScreen();
+				}
+			});
+
+			elements.btnHelp.addEventListener('click', async () => {
+				try {
+					const data = await RPCWebAPIFetch('help', {});
+					showResult('✅ Autorización concedida', data.message, 'success');
+				} catch (error) {
+					handleRpcError(error);
+				}
+			});
+
+			elements.btnLog.addEventListener('click', async () => {
+				try {
+					const data = await RPCWebAPIFetch('log', {});
+					showResult('✅ Autorización concedida', data.message, 'success');
+				} catch (error) {
+					handleRpcError(error);
+				}
+			});
+
+			elements.btnSayHello.addEventListener('click', async () => {
+				try {
+					const data = await RPCWebAPIFetch('sayHello', {});
+					showResult('✅ Autorización concedida', data.message, 'success');
+				} catch (error) {
+					handleRpcError(error);
+				}
+			});
+		}
+
+		initializeEventListeners();
+		updateUI(false);
+
+		console.log('%cSistema de Autenticación y Autorización Iniciado', 'color: #667eea; font-size: 14px; font-weight: bold;');
+		console.log('%cUsuario de prueba: admin / 1234', 'color: #48bb78; font-size: 12px;');
+		</script>
+	</body>
+</html>
