@@ -1,5 +1,5 @@
 import { parse } from 'node:querystring';
-import { getRequestUrl, getSessionId } from './server.mjs';
+import { getRequestUrl } from './server.mjs';
 import {
     iniciar_sesion,
     crear_usuario,
@@ -13,6 +13,14 @@ function parseRequestBody(request) {
         request.on('end', () => resolve(parse(body)));
         request.on('error', reject);
     });
+}
+
+function getAuthHeaders(request) {
+    const headers = request.headers || {};
+    return {
+        userId: headers['x-user-id'] || null,
+        apiKey: headers['x-api-key'] || null
+    };
 }
 
 async function register_handler(request, response, context) {
@@ -33,13 +41,12 @@ async function login_handler(request, response, context) {
         const user = iniciar_sesion(context.db, input.username, input.password);
 
         if (user) {
-            const sessionId = Math.random().toString(36).substring(2);
-            context.sessions.set(sessionId, user);
+            const apiKey = Math.random().toString(36).substring(2);
+            context.sessions.set(apiKey, user);
             response.writeHead(200, {
-                'Content-Type': 'application/json',
-                'Set-Cookie': `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Lax`
+                'Content-Type': 'application/json'
             });
-            return response.end(JSON.stringify({ success: true, message: 'Login exitoso' }));
+            return response.end(JSON.stringify({ success: true, message: 'Login exitoso', apiKey, userId: user.username }));
         }
         response.writeHead(401, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({ error: 'Credenciales inválidas' }));
@@ -50,12 +57,9 @@ async function login_handler(request, response, context) {
 }
 
 async function logout_handler(request, response, context) {
-    const sessionId = getSessionId(request);
-    if (sessionId) context.sessions.delete(sessionId);
-    response.writeHead(200, { 
-        'Content-Type': 'application/json',
-        'Set-Cookie': 'sessionId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
-    });
+    const auth = getAuthHeaders(request);
+    if (auth.apiKey) context.sessions.delete(auth.apiKey);
+    response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify({ message: 'Sesión cerrada' }));
 }
 
@@ -63,7 +67,6 @@ async function action_handler(request, response, context) {
     const url = getRequestUrl(request, context.config);
     const path = url.pathname;
 
-    // Seguridad: Evitar crash si request.user no existe (sesión no válida)
     if (!request.user) {
         response.writeHead(401, { 'Content-Type': 'application/json' });
         return response.end(JSON.stringify({ error: 'No autenticado', authorized: false }));

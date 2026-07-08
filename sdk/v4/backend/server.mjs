@@ -13,29 +13,21 @@ function getRequestUrl(request, config)
     return new URL(request.url, `${protocol}://${host}`);
 }
 
-function getSessionId(request)
+function getAuthHeaders(request)
 {
-    const cookies = request.headers.cookie;
-    if (!cookies) return null;
-
-    const list = {};
-    cookies.split(';').forEach(function (cookie) {
-        const parts = cookie.split('=');
-        list[parts.shift().trim()] = decodeURI(parts.join('='));
-    });
-    return list.sessionId;
+    const headers = request.headers || {};
+    return {
+        userId: headers['x-user-id'] || null,
+        apiKey: headers['x-api-key'] || null
+    };
 }
 
 async function request_dispatcher(request, response, router, context)
 {
     // v4: Configuración de CORS para permitir acceso desde el Frontend (Apache/UniServer)
-    // Para permitir el envío de Cookies (credentials) entre puertos, el Origin no puede ser '*'
-    const origin = request.headers.origin || '*';
-    response.setHeader('Access-Control-Allow-Origin', origin);
-    response.setHeader('Access-Control-Allow-Credentials', 'true');
-    
+    response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Cookie');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-user-id, x-api-key');
 
     if (request.method === 'OPTIONS')
     {
@@ -51,21 +43,20 @@ async function request_dispatcher(request, response, router, context)
     if (handler)
     {
         // v4: Rutas públicas que no requieren sesión
-        const publicPaths = ['/', '/login', '/register'];
+        const publicPaths = ['/login', '/register'];
 
         if (!publicPaths.includes(path))
         {
-            const sessionId = getSessionId(request);
-            const session = context.sessions ? context.sessions.get(sessionId) : null;
+            const auth = getAuthHeaders(request);
+            const session = context.sessions ? context.sessions.get(auth.apiKey) : null;
 
-            if (!session)
+            if (!session || session.username !== auth.userId)
             {
                 response.writeHead(401, { 'Content-Type': 'application/json' });
                 response.end(JSON.stringify({ error: 'No autorizado. Inicie sesión.' }));
                 return;
             }
-            // Agregamos el usuario al request para que el handler lo use si lo necesita
-            request.user = session.user;
+            request.user = session;
         }
 
         return await handler(request, response, context);
@@ -90,4 +81,4 @@ function start_server(config, router, context)
     server.listen(config.server.port, config.server.ip);
 }
 
-export { create_router, start_server, getRequestUrl, getSessionId };
+export { create_router, start_server, getRequestUrl };

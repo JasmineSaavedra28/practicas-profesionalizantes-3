@@ -327,8 +327,8 @@
 
 		<script>
 		// v4: Asegúrate de que esta URL sea la de tu servidor Node.js
-		const API_BASE = 'http://localhost:3000'; 
-		let currentSession = null;
+		const API_BASE = 'http://localhost:3000';
+		let currentSession = { username: null, apiKey: null };
 
 		const elements = {
 			username: document.getElementById('username'),
@@ -393,52 +393,38 @@
 			}
 
 			try {
-				// Hasheamos la contraseña antes de enviarla al backend
-				const passwordHasheada = await calcularhashsha256(password);
+					const passwordHasheada = await calcularhashsha256(password);
 
-				const params = new URLSearchParams();
-				params.append('username', username);
-				params.append('password', passwordHasheada);
+					const response = await fetch(API_BASE + '/login', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ username, password: passwordHasheada })
+					});
 
-				const response = await fetch(API_BASE + '/login', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					body: params,
-					credentials: 'include'
-				});
+					const data = await response.json();
 
-				const data = await response.json();
-
-				if (response.ok && data.success) {
-					currentSession = { username: data.username };
-					updateUI(true);
-					showResult('✅ Login exitoso', `Bienvenido ${data.username}`, 'success');
-				} else {
-					showResult('❌ Error de autenticación', data.error || 'Credenciales inválidas', 'error');
-					updateUI(false);
+					if (response.ok && data.success) {
+						currentSession = { username: data.username, apiKey: data.apiKey };
+						updateUI(true);
+						showResult('✅ Login exitoso', `Bienvenido ${data.username}`, 'success');
+					} else {
+						showResult('❌ Error de autenticación', data.error || 'Credenciales inválidas', 'error');
+						updateUI(false);
+					}
+				} catch (error) {
+					showResult('❌ Error de conexión', error.message, 'error');
 				}
-			} catch (error) {
-				showResult('❌ Error de conexión', error.message, 'error');
-			}
-		});
+			});
 
-		elements.btnLogout.addEventListener('click', async () => {
-			try {
-				const response = await fetch(API_BASE + '/logout', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ username: currentSession.username }),
-					credentials: 'include'
-				});
-				const data = await response.json();
-				
-				showResult('✅ Sesión cerrada', data.message || 'Has cerrado sesión exitosamente', 'success');
-				updateUI(false);
-			} catch (error) {
-				showResult('❌ Error', error.message, 'error');
-			}
-		});
-
+			elements.btnLogout.addEventListener('click', async () => {
+				try {
+					const response = await fetch(API_BASE + '/logout', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'x-user-id': currentSession.username,
+							'x-api-key': currentSession.apiKey
+						}
 		elements.btnLog.addEventListener('click', async () => {
 			await executeEndpoint('/log');
 		});
@@ -450,7 +436,13 @@
 		async function executeEndpoint(endpoint) {
 			try {
 				const response = await fetch(API_BASE + endpoint, {
-					credentials: 'include'
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'x-user-id': currentSession.username,
+						'x-api-key': currentSession.apiKey
+					},
+					body: JSON.stringify({})
 				});
 				const data = await response.json();
 
