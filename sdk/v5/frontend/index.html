@@ -243,22 +243,47 @@
 			.w3-main {
 				margin-left: 230px;
 				margin-top: 54px;
-				padding: 24px 30px;
+				padding: 40px;
+				background: #f8fafc;
+				min-height: calc(100vh - 54px);
 			}
 
 			.main-content {
-				max-width: 1180px;
+				max-width: 1400px;
 				margin: 0 auto;
 			}
 
 			.panel-section {
-				margin-bottom: 22px;
+				margin-bottom: 32px;
 			}
 
 			.section-title {
-				font-size: 1.15rem;
+				font-size: 1.5rem;
 				font-weight: 700;
-				margin-bottom: 18px;
+				margin-bottom: 24px;
+				color: #1e3a8a;
+			}
+
+			.section-description {
+				font-size: 0.95rem;
+				color: #64748b;
+				margin-bottom: 20px;
+			}
+
+			.panel-card {
+				background: #fff;
+				border-radius: 18px;
+				border: 1px solid rgba(148, 163, 184, 0.2);
+				padding: 32px;
+				box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
+				margin-bottom: 20px;
+			}
+
+			.action-buttons {
+				display: flex;
+				gap: 12px;
+				margin: 24px 0;
+				flex-wrap: wrap;
 			}
 
 			.top-chip {
@@ -351,11 +376,12 @@
 			.info-box {
 				background: #eff6ff;
 				border-left: 4px solid #2563eb;
-				padding: 14px;
+				padding: 18px;
 				border-radius: 12px;
 				font-size: 0.95rem;
 				color: #1e40af;
-				margin-bottom: 18px;
+				margin-bottom: 24px;
+				line-height: 1.6;
 			}
 
 			.info-box strong {
@@ -408,37 +434,39 @@
 				border-radius: 18px;
 				border: 1px solid rgba(148, 163, 184, 0.22);
 				box-shadow: 0 16px 28px rgba(15, 23, 42, 0.08);
+				padding: 28px;
 			}
 
 			.wc-auth-header {
 				text-align: center;
-				margin-bottom: 20px;
+				margin-bottom: 28px;
 			}
 
 			.wc-auth-header h2 {
 				font-size: 1.3rem;
 				color: #1e40af;
-				margin-bottom: 8px;
+				margin-bottom: 12px;
 			}
 
 			.wc-auth-header p {
-				color: #475569;
+				color: #64748b;
 				font-size: 0.95rem;
 			}
 
 			.wc-auth-field {
-				margin-bottom: 16px;
+				margin-bottom: 18px;
 			}
 
 			.wc-auth-action {
 				width: 100%;
+				margin-top: 12px;
 			}
 
 			.wc-auth-footer {
 				font-size: 0.88rem;
-				color: #64748b;
+				color: #94a3b8;
 				text-align: center;
-				margin-top: 16px;
+				margin-top: 20px;
 			}
 
 			@media (max-width: 920px) {
@@ -499,17 +527,19 @@
 		</nav>
 		<div class="w3-main">
 			<div class="main-content">
+
 				<section id="dashboard" class="panel-section">
-					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
-						<div class="w3-right top-chip">Autenticación & Autorización</div>
+					<div class="panel-card">
+						<div style="text-align: right; margin-bottom: 12px;">
+							<span class="top-chip">Autenticación & Autorización</span>
+						</div>
 						<h1 class="section-title">Dashboard de Autenticación</h1>
-						<p class="w3-opacity">Interfaz W3Admin adaptada para el SDK v5, con login, registro y pruebas de permisos.</p>
-				<div class="action-buttons">
-					<button class="w3-button w3-white w3-border" id="btnGoAuthentication">Ir a Login / Registro</button>
-				</div>
+						<p class="section-description">Interfaz W3Admin adaptada para el SDK v5, con login, registro y pruebas de permisos.</p>
+					</div>
+				</section>
 
 				<section id="authentication" class="panel-section">
-					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+					<div class="panel-card">
 						<h2 class="section-title">Autenticación</h2>
 						<div class="w3-row-padding">
 							<div class="w3-col m6">
@@ -527,7 +557,7 @@
 				</section>
 
 				<section id="access-control" class="panel-section">
-					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+					<div class="panel-card">
 						<h2 class="section-title">Control de Acceso</h2>
 						<div class="info-box">
 							<strong>Grupo "prueba" tiene acceso a:</strong>
@@ -547,16 +577,14 @@
 				</section>
 
 				<section id="users-groups" class="panel-section">
-					<div class="w3-white w3-round w3-border w3-padding w3-margin-bottom">
+					<div class="panel-card">
 						<h2 class="section-title">Usuarios y Grupos</h2>
-						<p class="w3-opacity">Acciones de control con usuarios, grupos y permisos para la API de `sdk/v5`.</p>
+						<p class="section-description">Acciones de control con usuarios, grupos y permisos para la API de `sdk/v5`.</p>
 						<div class="info-box">
 							<strong>Funcionalidad incluida:</strong>
-							<ul>
-								<li>Login / Registro con RPCWebAPIFetch</li>
-								<li>Cierre de sesión desde el toolbar</li>
-								<li>Pruebas de endpoints protegidos</li>
-							</ul>
+							📝 Login / Registro con RPCWebAPIFetch<br>
+							🚪 Cierre de sesión desde el toolbar<br>
+							🔓 Pruebas de endpoints protegidos
 						</div>
 					</div>
 				</section>
@@ -564,47 +592,78 @@
 			</div>
 		</div>
 
+		<script src="./webcomponents/WCLoginFormView.js"></script>
+		<script src="./webcomponents/WCRegisterFormView.js"></script>
 		<script>
 		const API_BASE = 'http://localhost:3000';
 		let currentSession = null;
 
-		class UnauthorizedError extends Error {
-			constructor(message) {
-				super(message);
-				this.name = 'UnauthorizedError';
+		class RPCWebAPIException extends Error {
+			constructor(type, detail) {
+				super(detail);
+				this.name = 'RPCWebAPIException';
+				this.type = type;
+				this.detail = detail;
 			}
 		}
 
 		async function RPCWebAPIFetch(name, content = {}) {
-			const response = await fetch(`${API_BASE}/${name}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					...(currentSession?.apiKey ? {
-						'x-user-id': currentSession.username,
-						'x-api-key': currentSession.apiKey
-					} : {})
-				},
-				body: JSON.stringify(content)
-			});
-
-			const text = await response.text();
-			let data = {};
 			try {
-				data = text ? JSON.parse(text) : {};
-			} catch {
-				throw new Error('Respuesta JSON inválida del servidor');
-			}
+				const response = await fetch(`${API_BASE}/${name}`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						...(currentSession?.apiKey ? {
+							'x-user-id': currentSession.username,
+							'x-api-key': currentSession.apiKey
+						} : {})
+					},
+					body: JSON.stringify(content || {})
+				});
 
-			if (response.ok) {
-				return data;
-			}
+				let data = {};
+				try {
+					data = await response.json();
+				} catch {
+					data = {};
+				}
 
-			const message = data.error || `HTTP ${response.status}`;
-			if (response.status === 401 || response.status === 403) {
-				throw new UnauthorizedError(message);
+				switch (response.status) {
+					case 200:
+					case 201:
+					case 204:
+						return data;
+					case 400:
+						throw new RPCWebAPIException('BadRequest', data.error || data.message || 'Solicitud inválida');
+					case 401:
+						throw new RPCWebAPIException('Unauthorized', data.error || data.message || 'No autorizado');
+					case 403:
+						throw new RPCWebAPIException('Forbidden', data.error || data.message || 'Acceso denegado');
+					case 404:
+						throw new RPCWebAPIException('NotFound', data.error || data.message || 'Recurso no encontrado');
+					case 405:
+						throw new RPCWebAPIException('MethodNotAllowed', data.error || data.message || 'Método no permitido');
+					case 409:
+						throw new RPCWebAPIException('Conflict', data.error || data.message || 'Conflicto con el recurso');
+					case 422:
+						throw new RPCWebAPIException('UnprocessableEntity', data.error || data.message || 'Datos inválidos');
+					case 500:
+						throw new RPCWebAPIException('ProgramError', data.error || data.message || 'Error interno del servidor');
+					case 502:
+						throw new RPCWebAPIException('BadGateway', data.error || data.message || 'Puerta de enlace inválida');
+					case 503:
+						throw new RPCWebAPIException('ServiceUnavailable', data.error || data.message || 'Servicio no disponible');
+					case 504:
+						throw new RPCWebAPIException('GatewayTimeout', data.error || data.message || 'Tiempo de espera agotado');
+					default:
+						throw new RPCWebAPIException('UnknownError', data.error || data.message || `Error HTTP ${response.status}`);
+				}
+			} catch (error) {
+				if (error instanceof RPCWebAPIException) {
+					throw error;
+				}
+				throw new RPCWebAPIException('NetworkError', 'No se pudo conectar con el servidor. Intente nuevamente.');
 			}
-			throw new Error(message);
 		}
 
 		function clearSession() {
@@ -613,7 +672,7 @@
 		}
 
 		function handleRpcError(error) {
-			if (error instanceof UnauthorizedError) {
+			if (error instanceof RPCWebAPIException && error.type === 'Unauthorized') {
 				clearSession();
 				showLoginScreen();
 				showResult('⚠️ No autorizado', error.message, 'error');
@@ -659,14 +718,14 @@
 				elements.statusBox.classList.remove('status-inactive');
 				elements.statusUsername.textContent = `Sesión activa: ${currentSession.username}`;
 				elements.topSessionLabel.textContent = `Usuario: ${currentSession.username}`;
-					elements.topLogin.style.display = 'none';
-				} else {
-					elements.topSessionLabel.textContent = 'Sin sesión activa';
-					elements.statusBox.classList.remove('status-active');
-					elements.statusBox.classList.add('status-inactive');
-					elements.statusUsername.textContent = 'Sin sesión activa';
-					elements.topLogin.style.display = 'inline-flex';
-			if (registerForm) registerForm.toggleAttribute('disabled', isActive);
+				elements.topLogin.style.display = 'none';
+			} else {
+				elements.topSessionLabel.textContent = 'Sin sesión activa';
+				elements.statusBox.classList.remove('status-active');
+				elements.statusBox.classList.add('status-inactive');
+				elements.statusUsername.textContent = 'Sin sesión activa';
+				elements.topLogin.style.display = 'inline-flex';
+			}
 		}
 
 		function validateCredentials(username, password) {
@@ -681,95 +740,6 @@
 			const hashArray = Array.from(new Uint8Array(hashBuffer));
 			return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 		}
-
-		class WCLoginFormView extends HTMLElement {
-			connectedCallback() {
-				this.innerHTML = `
-					<div class="wc-auth-card w3-white w3-padding-large">
-						<div class="wc-auth-header">
-							<h2>INICIO DE SESIÓN</h2>
-							<p>Accede a los endpoints protegidos de la API.</p>
-						</div>
-						<div class="wc-auth-field">
-							<input type="text" id="loginUsername" class="w3-input w3-round" placeholder="Usuario">
-						</div>
-						<div class="wc-auth-field">
-							<input type="password" id="loginPassword" class="w3-input w3-round" placeholder="Contraseña">
-						</div>
-						<button id="loginSubmit" class="w3-button w3-primary w3-round w3-block wc-auth-action">Iniciar Sesión</button>
-						<div class="wc-auth-footer">¿No tienes cuenta? Regístrate en el panel de la derecha.</div>
-					</div>
-				`;
-				this.querySelector('#loginSubmit').addEventListener('click', () => this.onSubmit());
-			}
-
-			onSubmit() {
-				const username = this.querySelector('#loginUsername').value.trim();
-				const password = this.querySelector('#loginPassword').value;
-				this.dispatchEvent(new CustomEvent('login', {
-					detail: { username, password },
-					bubbles: true,
-					composed: true
-				}));
-			}
-
-			static get observedAttributes() {
-				return ['disabled'];
-			}
-
-			attributeChangedCallback(name) {
-				if (name === 'disabled') {
-					const disabled = this.hasAttribute('disabled');
-					this.querySelectorAll('input, button').forEach(el => el.disabled = disabled);
-				}
-			}
-		}
-
-		class WCRegisterFormView extends HTMLElement {
-			connectedCallback() {
-				this.innerHTML = `
-					<div class="wc-auth-card w3-white w3-padding-large">
-						<div class="wc-auth-header">
-							<h2>REGISTRO</h2>
-							<p>Crea un usuario para acceder a las pruebas de autorización.</p>
-						</div>
-						<div class="wc-auth-field">
-							<input type="text" id="registerUsername" class="w3-input w3-round" placeholder="Usuario">
-						</div>
-						<div class="wc-auth-field">
-							<input type="password" id="registerPassword" class="w3-input w3-round" placeholder="Contraseña">
-						</div>
-						<button id="registerSubmit" class="w3-button w3-secondary w3-round w3-block wc-auth-action">Registrarse</button>
-						<div class="wc-auth-footer">El registro no requiere datos personales adicionales.</div>
-					</div>
-				`;
-				this.querySelector('#registerSubmit').addEventListener('click', () => this.onSubmit());
-			}
-
-			onSubmit() {
-				const username = this.querySelector('#registerUsername').value.trim();
-				const password = this.querySelector('#registerPassword').value;
-				this.dispatchEvent(new CustomEvent('register', {
-					detail: { username, password },
-					bubbles: true,
-					composed: true
-				}));
-			}
-
-			static get observedAttributes() {
-				return ['disabled'];
-			}
-
-			attributeChangedCallback(name) {
-				if (name === 'disabled') {
-					const disabled = this.hasAttribute('disabled');
-					this.querySelectorAll('input, button').forEach(el => el.disabled = disabled);
-				}
-			}
-		}
-
-		customElements.define('wc-login-form-view', WCLoginFormView);
-		customElements.define('wc-register-form-view', WCRegisterFormView);
 
 		const elements = {
 				topLogin: document.getElementById('topLogin'),
@@ -820,19 +790,20 @@
 
 				elements.btnGoAuthentication.addEventListener('click', () => {
 					showLoginScreen();
+				});
 
-			elements.topLogout.addEventListener('click', async () => {
-				try {
-					await RPCWebAPIFetch('logout', {});
-				} catch (error) {
-					handleRpcError(error);
-				} finally {
-					clearSession();
-					showLoginScreen();
-				}
-			});
+				elements.topLogout.addEventListener('click', async () => {
+					try {
+						await RPCWebAPIFetch('logout', {});
+					} catch (error) {
+						handleRpcError(error);
+					} finally {
+						clearSession();
+						showLoginScreen();
+					}
+				});
 
-			elements.btnHelp.addEventListener('click', async () => {
+				elements.btnHelp.addEventListener('click', async () => {
 				try {
 					const data = await RPCWebAPIFetch('help', {});
 					showResult('✅ Autorización concedida', data.message, 'success');
