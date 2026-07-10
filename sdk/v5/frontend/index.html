@@ -83,7 +83,7 @@
     <div class="w3-top">
         <div class="top-bar">
             <img src="../isft.png" alt="ISFT 151" class="top-logo">
-            <span class="top-title">W3Admin SDK v5</span>
+            <span class="top-title">W3Admin SDK v4</span>
         </div>
         <div class="top-actions">
             <span class="session-badge" id="topSessionLabel">Sin sesión</span>
@@ -137,12 +137,11 @@
     <div class="w3-main">
         <div class="main-content">
 
-            <!-- Dashboard Section -->
             <div id="dashboard" class="page-section active">
                 <section class="section">
                     <div class="card">
                         <h1 class="section-title">Dashboard de Autenticación</h1>
-                        <p style="color:#6b7280;line-height:1.6;">Interfaz W3Admin adaptada para el SDK v5, con login, registro y pruebas de permisos.</p>
+                        <p style="color:#6b7280;line-height:1.6;">Interfaz W3Admin adaptada para el SDK v4, con login, registro y pruebas de permisos.</p>
                     </div>
                 </section>
 
@@ -191,12 +190,11 @@
                 </section>
             </div>
 
-            <!-- Users and Groups Section -->
             <div id="users-groups" class="page-section">
                 <section class="section">
                     <div class="card">
                         <h2 class="section-title">Usuarios y Grupos</h2>
-                        <p style="color:#6b7280;margin-bottom:16px;">Acciones de control con usuarios, grupos y permisos para la API de sdk/v5.</p>
+                        <p style="color:#6b7280;margin-bottom:16px;">Acciones de control con usuarios, grupos y permisos para la API de sdk/v4.</p>
                         <ul class="feature-list">
                             <li><i class="fa fa-pencil"></i> Login / Registro con RPCWebAPIFetch</li>
                             <li><i class="fa fa-sign-out"></i> Cierre de sesión desde el toolbar</li>
@@ -208,7 +206,6 @@
                 </section>
             </div>
 
-            <!-- Access Control Section -->
             <div id="access-control" class="page-section">
                 <section class="section">
                     <h2 class="section-title">Control de Acceso</h2>
@@ -221,7 +218,7 @@
                                 ✅ /log<br>
                                 ✅ /help<br>
                                 ❌ /sayHello<br>
-                                 /sayBye
+                                ❌ /sayBye
                             </div>
                         </div>
                         <div class="card">
@@ -250,29 +247,31 @@
     </div>
     <script>
         const API_BASE = 'http://localhost:3000';
+        const API_VERSION = '1.0';
         let currentSession = null;
 
         class RPCWebAPIException extends Error {
-            constructor(type, detail) {
-                super(detail);
+            constructor(exception, detail) {
+                super(typeof detail === 'string' ? detail : JSON.stringify(detail));
                 this.name = 'RPCWebAPIException';
-                this.type = type;
+                this.exception = exception;
                 this.detail = detail;
             }
         }
 
-        async function RPCWebAPIFetch(name, content = {}) {
+        async function RPCWebAPIFetch(path, content = {}) {
+            if (content == null) content = {};
+            
             try {
-                const response = await fetch(`${API_BASE}/${name}`, {
+                const response = await fetch(API_BASE + path, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        ...(currentSession?.apiKey ? {
-                            'x-user-id': currentSession.username,
-                            'x-api-key': currentSession.apiKey
-                        } : {})
+                        'x-user-id': currentSession?.username || '',
+                        'x-api-key': currentSession?.apiKey || '',
+                        'X-API-Version': API_VERSION
                     },
-                    body: JSON.stringify(content || {})
+                    body: JSON.stringify(content)
                 });
 
                 let data = {};
@@ -283,40 +282,30 @@
                 }
 
                 switch (response.status) {
+                    case 101:
+                        return data;
                     case 200:
-                    case 201:
-                    case 204:
+                        return data;
+                    case 202:
                         return data;
                     case 400:
-                        throw new RPCWebAPIException('BadRequest', data.error || data.message || 'Solicitud inválida');
+                        throw new RPCWebAPIException(data.exception || 'SpecificationError', data.detail || []);
                     case 401:
-                        throw new RPCWebAPIException('Unauthorized', data.error || data.message || 'No autorizado');
-                    case 403:
-                        throw new RPCWebAPIException('Forbidden', data.error || data.message || 'Acceso denegado');
-                    case 404:
-                        throw new RPCWebAPIException('NotFound', data.error || data.message || 'Recurso no encontrado');
-                    case 405:
-                        throw new RPCWebAPIException('MethodNotAllowed', data.error || data.message || 'Método no permitido');
-                    case 409:
-                        throw new RPCWebAPIException('Conflict', data.error || data.message || 'Conflicto con el recurso');
+                        currentSession = null;
+                        updateUI(false);
+                        throw new RPCWebAPIException(data.exception || 'UnauthorizedError', data.detail || []);
                     case 422:
-                        throw new RPCWebAPIException('UnprocessableEntity', data.error || data.message || 'Datos inválidos');
+                        throw new RPCWebAPIException(data.exception || 'DomainError', data.detail || []);
                     case 500:
-                        throw new RPCWebAPIException('ProgramError', data.error || data.message || 'Error interno del servidor');
-                    case 502:
-                        throw new RPCWebAPIException('BadGateway', data.error || data.message || 'Puerta de enlace inválida');
-                    case 503:
-                        throw new RPCWebAPIException('ServiceUnavailable', data.error || data.message || 'Servicio no disponible');
-                    case 504:
-                        throw new RPCWebAPIException('GatewayTimeout', data.error || data.message || 'Tiempo de espera agotado');
+                        throw new RPCWebAPIException(data.exception || 'ProgramError', data.detail || []);
                     default:
-                        throw new RPCWebAPIException('UnknownError', data.error || data.message || `Error HTTP ${response.status}`);
+                        throw new RPCWebAPIException('UnknownError', data.detail || []);
                 }
             } catch (error) {
                 if (error instanceof RPCWebAPIException) {
                     throw error;
                 }
-                throw new RPCWebAPIException('NetworkError', 'No se pudo conectar con el servidor. Intente nuevamente.');
+                throw new RPCWebAPIException('NetworkError', ['No se pudo conectar con el servidor']);
             }
         }
 
@@ -326,12 +315,11 @@
         }
 
         function handleRpcError(error) {
-            if (error instanceof RPCWebAPIException && error.type === 'Unauthorized') {
-                clearSession();
-                showResult('️ No autorizado', error.message, 'error');
-                return;
+            if (error instanceof RPCWebAPIException) {
+                showResult('❌ Error: ' + error.exception, error.detail, 'error');
+            } else {
+                showResult('❌ Error', String(error), 'error');
             }
-            showResult(' Error', error.message || String(error), 'error');
         }
 
         function showResult(title, content, type = 'info') {
@@ -417,7 +405,7 @@
 
             elements.topLogout.addEventListener('click', async () => {
                 try {
-                    await RPCWebAPIFetch('logout', {});
+                    await RPCWebAPIFetch('/logout', {});
                 } catch (error) {
                     handleRpcError(error);
                 } finally {
@@ -427,8 +415,8 @@
 
             elements.btnHelp.addEventListener('click', async () => {
                 try {
-                    const data = await RPCWebAPIFetch('help', {});
-                    showResult('✅ Autorización concedida', data.message, 'success');
+                    const data = await RPCWebAPIFetch('/help', {});
+                    showResult('✅ Autorización concedida', data, 'success');
                 } catch (error) {
                     handleRpcError(error);
                 }
@@ -436,8 +424,8 @@
 
             elements.btnLog.addEventListener('click', async () => {
                 try {
-                    const data = await RPCWebAPIFetch('log', {});
-                    showResult('✅ Autorización concedida', data.message, 'success');
+                    const data = await RPCWebAPIFetch('/log', {});
+                    showResult('✅ Autorización concedida', data, 'success');
                 } catch (error) {
                     handleRpcError(error);
                 }
@@ -445,8 +433,8 @@
 
             elements.btnSayHello.addEventListener('click', async () => {
                 try {
-                    const data = await RPCWebAPIFetch('sayHello', {});
-                    showResult('✅ Autorización concedida', data.message, 'success');
+                    const data = await RPCWebAPIFetch('/sayHello', {});
+                    showResult('✅ Autorización concedida', data, 'success');
                 } catch (error) {
                     handleRpcError(error);
                 }
@@ -458,7 +446,7 @@
         updateUI(false);
 
         console.log('%cSistema de Autenticación y Autorización Iniciado', 'color: #667eea; font-size: 14px; font-weight: bold;');
-        console.log('%cUsuario de prueba: admin / 1234', 'color: #48bb78; font-size: 12px;');
+        console.log('%cSDK v4 - RPC WebAPI', 'color: #48bb78; font-size: 12px;');
     </script>
 </body>
 </html>    
